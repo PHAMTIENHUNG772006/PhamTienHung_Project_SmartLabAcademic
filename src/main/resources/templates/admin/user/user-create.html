@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#admin-dashboard}, 'Quản trị - SmartAcademic', 'users')}">
+<body>
+
+<div id="admin-dashboard">
+    <style>
+        /* Tùy chỉnh bảng */
+        .custom-table thead th {
+            background-color: #f8f9fa !important;
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .custom-table tbody td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8faff;
+            transition: all 0.2s ease;
+        }
+
+        /* Badge Trạng thái & Role */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            display: inline-block;
+        }
+
+        .status-active { background-color: #d1fae5; color: #065f46; }
+        .status-locked { background-color: #fee2e2; color: #991b1b; }
+
+        .role-pill {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        /* Nút hành động */
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-edit { color: #f59e0b; border: 1px solid #fef3c7; background: #fffbeb; }
+        .btn-edit:hover { background: #f59e0b; color: #fff; transform: translateY(-2px); }
+
+        .btn-delete { color: #ef4444; border: 1px solid #fee2e2; background: #fef2f2; }
+        .btn-delete:hover { background: #ef4444; color: #fff; transform: translateY(-2px); }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #4361ee;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+    </style>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-primary" style="color: #4361ee !important;">Quản lý Người dùng</h3>
+            <p class="text-secondary">Quản lý tài khoản Sinh viên, Giảng viên và Quản trị viên</p>
+        </div>
+        <a th:href="@{/admin/user/create}" class="btn btn-primary rounded-3 px-4 shadow-sm" style="background-color: #4361ee; border: none;">
+            <i class="fas fa-user-plus me-2"></i>Thêm người dùng
+        </a>
+    </div>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm">
+        <form th:action="@{/admin/users/create}" th:object="${userDTO}" method="post">
+
+            <div class="card p-4 mb-3 border-0 bg-light">
+                <h5 class="mb-3 fw-bold text-dark">Thông tin cơ bản</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" th:field="*{fullName}" class="form-control" placeholder="Nhập họ tên...">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email tài khoản</label>
+                        <input type="email" th:field="*{email}" class="form-control" placeholder="example@stu.ptit.edu.vn">
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label fw-bold text-primary">Vai trò người dùng</label>
+                    <div class="d-flex gap-2">
+                        <select th:field="*{role}" class="form-select border-primary">
+                            <option value="STUDENT">Sinh viên</option>
+                            <option value="ADMIN">Quản trị viên</option>
+                            <option value="LECTURER">Giảng viên</option>
+                        </select>
+                        <button type="submit" name="action" value="refresh" class="btn btn-outline-primary text-nowrap">
+                            Xác nhận vai trò
+                        </button>
+                    </div>
+                    <small class="text-muted">* Nhấn xác nhận để hiện thêm các trường thông tin đặc thù.</small>
+                </div>
+            </div>
+
+            <div th:if="*{role != null && role.name() == 'LECTURER'}" class="card p-4 mb-3 border-primary shadow-sm">
+                <h5 class="text-primary mb-3"><i class="fas fa-university me-2"></i>Thông tin Khoa & Chuyên môn</h5>
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Chọn Khoa / Ngành công tác</label>
+                        <select th:field="*{departmentId}" class="form-select">
+                            <option value="">-- Chọn khoa từ danh sách --</option>
+                            <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Học vị</label>
+                        <input type="text" th:field="*{degree}" class="form-control" placeholder="Thạc sĩ, Tiến sĩ...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Chuyên ngành sâu</label>
+                        <input type="text" th:field="*{specialization}" class="form-control" placeholder="VD: An toàn thông tin">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" name="action" value="save" class="btn btn-success btn-lg w-100 rounded-3 shadow">
+                    <i class="fas fa-user-check me-2"></i>Hoàn tất tạo tài khoản
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

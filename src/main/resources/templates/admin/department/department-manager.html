@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#admin-dashboard}, 'Quản trị - SmartAcademic', 'departments')}">
+<body>
+
+<div id="admin-dashboard">
+    <style>
+        /* Tùy chỉnh bảng */
+        .custom-table thead th {
+            background-color: #f8f9fa !important;
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .custom-table tbody td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        /* Hiệu ứng hover dòng */
+        .custom-table tbody tr:hover {
+            background-color: #f8faff;
+            transition: all 0.2s ease;
+        }
+
+        /* Badge Trạng thái */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        /* Trạng thái khoa thường là true/false (Active/Inactive) */
+        .status-active { background-color: #d1fae5; color: #065f46; }
+        .status-inactive { background-color: #fee2e2; color: #991b1b; }
+
+        /* Nút hành động */
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-edit { color: #f59e0b; border: 1px solid #fef3c7; background: #fffbeb; }
+        .btn-edit:hover { background: #f59e0b; color: #fff; transform: translateY(-2px); }
+
+        .btn-delete { color: #ef4444; border: 1px solid #fee2e2; background: #fef2f2; }
+        .btn-delete:hover { background: #ef4444; color: #fff; transform: translateY(-2px); }
+
+        .dept-icon {
+            width: 40px;
+            height: 40px;
+            background: #eff6ff;
+            color: #3b82f6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+    </style>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-primary" style="color: #4361ee !important;">Quản lý Khoa Ngành</h3>
+            <p class="text-secondary">Quản lý danh mục các khoa và phòng ban trong hệ thống</p>
+        </div>
+        <a th:href="@{/admin/department/create}" class="btn btn-primary rounded-3 px-4 shadow-sm" style="background-color: #4361ee; border: none;">
+            <i class="fas fa-plus me-2"></i>Thêm khoa mới
+        </a>
+    </div>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle custom-table">
+                <thead>
+                <tr>
+                    <th class="text-center" style="width: 60px;">STT</th>
+                    <th>ID</th>
+                    <th>Thông tin Khoa</th>
+                    <th>Mô tả chi tiết</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item, state : ${departments}">
+                    <td class="text-center text-muted" th:text="${state.index + 1}">1</td>
+                    <td class="fw-bold text-dark" th:text="${'#' + item.id}">#1</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="dept-icon me-3">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" th:text="${item.name}">Khoa Công nghệ thông tin</div>
+                                <small class="text-muted">Học viện PTIT</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-muted small d-inline-block text-truncate"
+                              style="max-width: 300px;"
+                              th:text="${item.description}"
+                              th:title="${item.description}">Mô tả ngắn về khoa</span>
+                    </td>
+                    <td class="text-center">
+                        <span th:if="${item.status}" class="status-badge status-active">Đang hoạt động</span>
+                        <span th:unless="${item.status}" class="status-badge status-inactive">Ngừng hoạt động</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a th:href="@{/admin/department/edit/{id}(id=${item.id})}"
+                               class="btn-action btn-edit" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a th:href="@{/admin/department/delete/{id}(id=${item.id})}"
+                               class="btn-action btn-delete"
+                               onclick="return confirm('Xác nhận xóa khoa này? Việc này có thể ảnh hưởng đến giảng viên thuộc khoa.')"
+                               title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(departments)}">
+                    <td colspan="6" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="fas fa-university fs-1 d-block mb-3"></i>
+                            <span>Chưa có dữ liệu Khoa ngành.</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

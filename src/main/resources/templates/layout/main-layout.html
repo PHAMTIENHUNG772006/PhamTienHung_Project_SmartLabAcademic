@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="main-layout(content, title, currentMenu)">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${title}">SmartAcademic</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --sidebar-bg: #ffffff; --body-bg: #f8fafc; --primary-color: #0d6efd; }
+    body { background-color: var(--body-bg); font-family: 'Inter', sans-serif; }
+    .sidebar { width: 260px; height: 100vh; position: fixed; background: white; border-right: 1px solid #e2e8f0; padding: 1.5rem; }
+    .nav-link { color: #64748b; padding: 0.8rem 1rem; border-radius: 0.5rem; margin-bottom: 0.25rem; display: flex; align-items: center; text-decoration: none; }
+    .nav-link.active { background: #eff6ff; color: var(--primary-color); font-weight: 600; border-right: 3px solid var(--primary-color); }
+    .main-content { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+    .header-top { background: white; padding: 1rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .footer { margin-top: auto; padding: 1.5rem 2rem; background: white; border-top: 1px solid #e2e8f0; color: #94a3b8; text-align: center; font-size: 0.85rem; }
+    .avatar-circle { width: 35px; height: 35px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="mb-4">
+    <h4 class="text-primary fw-bold mb-0"><i class="fas fa-graduation-cap me-2"></i>SmartAcademic</h4>
+    <small class="text-muted">Hệ thống quản lý Lab</small>
+  </div>
+
+  <div class="small fw-bold text-uppercase text-muted mb-3" style="letter-spacing: 1px; font-size: 0.7rem;">
+    Cổng <span th:text="${session.user.role.name}">Người dùng</span>
+  </div>
+
+  <nav class="nav flex-column">
+
+    <th:block th:if="${session.user.role.name == 'STUDENT'}">
+      <a th:href="@{/student/dashboard}" class="nav-link" th:classappend="${currentMenu == 'dashboard' ? 'active' : ''}">
+        <i class="fas fa-th-large me-3"></i>Tổng quan
+      </a>
+      <a th:href="@{/student/booking}" class="nav-link" th:classappend="${currentMenu == 'booking' ? 'active' : ''}">
+        <i class="fas fa-calendar-plus me-3"></i>Đặt lịch tư vấn
+      </a>
+      <a th:href="@{/student/profile}" class="nav-link" th:classappend="${currentMenu == 'profile' ? 'active' : ''}">
+        <i class="fas fa-user-circle me-3"></i>Hồ sơ cá nhân
+      </a>
+    </th:block>
+
+    <th:block th:if="${session.user.role.name == 'LECTURER'}">
+      <a th:href="@{/lecturer/dashboard}" class="nav-link" th:classappend="${currentMenu == 'dashboard' ? 'active' : ''}">
+        <i class="fas fa-chart-line me-3"></i>Bảng điều khiển
+      </a>
+      <a th:href="@{/lecturer/appointments}" class="nav-link" th:classappend="${currentMenu == 'appointments' ? 'active' : ''}">
+        <i class="fas fa-tasks me-3"></i>Quản lý lịch hẹn
+      </a>
+      <a th:href="@{/lecturer/profile}" class="nav-link" th:classappend="${currentMenu == 'profile' ? 'active' : ''}">
+        <i class="fas fa-user-tie me-3"></i>Hồ sơ cá nhân
+      </a>
+    </th:block>
+
+    <th:block th:if="${session.user.role.name == 'ADMIN'}">
+      <a th:href="@{/admin/dashboard}" class="nav-link" th:classappend="${currentMenu == 'dashboard' ? 'active' : ''}">
+        <i class="fas fa-user-shield me-3"></i>Tổng quan hệ thống
+      </a>
+      <a th:href="@{/admin/users}" class="nav-link" th:classappend="${currentMenu == 'users' ? 'active' : ''}">
+        <i class="fas fa-users me-3"></i>Quản lý người dùng
+      </a>
+
+      <a th:href="@{/admin/departments}" class="nav-link" th:classappend="${currentMenu == 'departments' ? 'active' : ''}">
+        <i class="fas fa-university me-3"></i>Quản lý khoa ngành
+      </a>
+
+      <a th:href="@{/admin/labs}" class="nav-link" th:classappend="${currentMenu == 'labs' ? 'active' : ''}">
+        <i class="fas fa-flask me-3"></i>Quản lý phòng Lab
+      </a>
+      <a th:href="@{/admin/equipments}" class="nav-link" th:classappend="${currentMenu == 'equipments' ? 'active' : ''}">
+        <i class="fas fa-tools me-3"></i>Quản lý thiết bị
+      </a>
+      <a th:href="@{/admin/profile}" class="nav-link" th:classappend="${currentMenu == 'profile' ? 'active' : ''}">
+        <i class="fas fa-user-tie me-3"></i>Hồ sơ cá nhân
+      </a>
+    </th:block>
+
+  </nav>
+</aside>
+
+<main class="main-content">
+  <header class="header-top">
+    <div>
+      <span class="text-muted">Xin chào,</span>
+      <strong th:text="${session.user.fullName}">User</strong>
+      <span class="badge bg-primary-subtle text-primary ms-2" style="font-size: 0.7rem;" th:text="${session.user.role.name}">Sinh viên</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <i class="far fa-bell text-muted cursor-pointer"></i>
+      <div class="avatar-circle" th:text="${#strings.substring(session.user.fullName,0,1)}">U</div>
+      <a th:href="@{/auth/logout}" class="text-decoration-none text-danger small fw-bold" onclick="return confirm('Đăng xuất?')">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </a>
+    </div>
+  </header>
+
+  <div class="p-4">
+    <div th:replace="${content}"></div>
+  </div>
+
+  <footer class="footer">
+    <div>&copy; 2026 SmartAcademic System - Bản quyền thuộc về Lab Management Team</div>
+    <div class="mt-1 small">Hỗ trợ kỹ thuật: support@smartacademic.edu.vn</div>
+  </footer>
+</main>
+
+</body>
+</html>

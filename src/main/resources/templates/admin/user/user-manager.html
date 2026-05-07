@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#admin-dashboard}, 'Quản trị - SmartAcademic', 'users')}">
+<body>
+
+<div id="admin-dashboard">
+    <style>
+        /* Tùy chỉnh bảng */
+        .custom-table thead th {
+            background-color: #f8f9fa !important;
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .custom-table tbody td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8faff;
+            transition: all 0.2s ease;
+        }
+
+        /* Badge Trạng thái & Role */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            display: inline-block;
+        }
+
+        .status-active { background-color: #d1fae5; color: #065f46; }
+        .status-locked { background-color: #fee2e2; color: #991b1b; }
+
+        .role-pill {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        /* Nút hành động */
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-edit { color: #f59e0b; border: 1px solid #fef3c7; background: #fffbeb; }
+        .btn-edit:hover { background: #f59e0b; color: #fff; transform: translateY(-2px); }
+
+        .btn-delete { color: #ef4444; border: 1px solid #fee2e2; background: #fef2f2; }
+        .btn-delete:hover { background: #ef4444; color: #fff; transform: translateY(-2px); }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #4361ee;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+    </style>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-primary" style="color: #4361ee !important;">Quản lý Người dùng</h3>
+            <p class="text-secondary">Quản lý tài khoản Sinh viên, Giảng viên và Quản trị viên</p>
+        </div>
+        <a th:href="@{/admin/users/create}" class="btn btn-primary rounded-3 px-4 shadow-sm" style="background-color: #4361ee; border: none;">
+            <i class="fas fa-user-plus me-2"></i>Thêm người dùng
+        </a>
+    </div>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle custom-table">
+                <thead>
+                <tr>
+                    <th class="text-center" style="width: 60px;">STT</th>
+                    <th>Người dùng</th>
+                    <th>Email / Tài khoản</th>
+                    <th class="text-center">Vai trò</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user, state : ${users}">
+                    <td class="text-center text-muted" th:text="${state.index + 1}">1</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3"
+                                 th:text="${#strings.substring(user.fullName,0,1)}">H</div>
+                            <div>
+                                <div class="fw-bold text-dark" th:text="${user.fullName}">Phạm Tiến Hưng</div>
+                                <small class="text-muted" th:text="${'ID: #' + user.userId}">#123</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-dark mb-0" th:text="${user.email}">hung.ptit@gmail.com</div>
+                        <small class="text-muted" th:text="${user.fullName}">username123</small>
+                    </td>
+                    <td class="text-center">
+                        <span class="role-pill" th:text="${user.role.name}">ADMIN</span>
+                    </td>
+                    <td class="text-center">
+                        <span th:if="${user.status}" class="status-badge status-active">Hoạt động</span>
+                        <span th:unless="${user.status}" class="status-badge status-locked">Bị khóa</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a th:href="@{/admin/user/lock/{id}(id=${user.userId})}"
+                               class="btn-action btn-delete"
+                               onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này?')"
+                               title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="6" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="fas fa-users-slash fs-1 d-block mb-3"></i>
+                            <span>Chưa có người dùng nào trong hệ thống.</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

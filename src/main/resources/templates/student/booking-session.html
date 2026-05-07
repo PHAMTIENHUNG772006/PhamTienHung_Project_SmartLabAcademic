@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#student-content}, 'Đặt lịch - SmartAcademic', 'booking-session')}">
+<body>
+
+<div id="student-content">
+    <style>
+        .card-radio { display: none; }
+        .booking-card { cursor: pointer; border: 2px solid #edf2f7; border-radius: 16px; padding: 20px; transition: all 0.3s ease; height: 100%; display: block; background: white; }
+        .booking-card:hover { transform: translateY(-4px); border-color: #4361ee; box-shadow: 0 10px 20px rgba(67, 97, 238, 0.1); }
+        .card-radio:checked + .booking-card { border-color: #4361ee; background-color: #f8faff; position: relative; }
+        .card-radio:checked + .booking-card::after { content: "\f058"; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; top: 10px; right: 15px; color: #4361ee; font-size: 1.2rem; }
+        .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; background: #f0f3ff; color: #4361ee; font-size: 1.25rem; }
+        .avatar-circle { width: 50px; height: 50px; background: #4361ee; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; }
+        .step-title { color: #2d3748; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; }
+        .step-title span { background: #4361ee; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; margin-right: 10px; }
+    </style>
+
+    <div class="mb-4">
+        <h3 class="fw-bold text-primary mb-1">Đặt lịch hỗ trợ</h3>
+        <p class="text-muted">Hoàn thành các bước dưới đây để đặt lịch với giảng viên</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+        <form th:action="@{/student/booking/process}" th:object="${bookingData}" method="post">
+
+            <div th:if="${step == 1 || step == null}">
+                <h5 class="step-title"><span>1</span> Chọn Khoa / Ngành</h5>
+                <div class="row g-3">
+                    <div th:each="dept : ${departments}" class="col-md-4">
+                        <input type="radio" th:field="*{departmentId}" th:value="${dept.id}" th:id="|d-${dept.id}|" class="card-radio" required>
+                        <label th:for="|d-${dept.id}|" class="booking-card">
+                            <div class="icon-box"><i class="fas fa-university"></i></div>
+                            <div class="fw-bold text-dark mb-1" th:text="${dept.name}">Tên Khoa</div>
+                            <div class="text-muted small">Học viện Công nghệ Bưu chính Viễn thông</div>
+                        </label>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" name="action" value="select-dept" class="btn btn-primary px-5 rounded-3">
+                        Tiếp theo <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div th:if="${step == 2}">
+                <input type="hidden" th:field="*{departmentId}">
+                <h5 class="step-title"><span>2</span> Chọn Giảng viên hướng dẫn</h5>
+                <div class="row g-3">
+                    <div th:each="lec : ${lecturers}" class="col-md-6">
+                        <input type="radio" th:field="*{lecturerId}" th:value="${lec.id}" th:id="|l-${lec.id}|" class="card-radio" required>
+                        <label th:for="|l-${lec.id}|" class="booking-card">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle" th:text="${#strings.substring(lec.user.fullName, 0, 1)}">H</div>
+                                <div>
+                                    <div class="fw-bold text-dark" th:text="${lec.user.fullName}">Tên Giảng Viên</div>
+                                    <div class="text-muted small"><i class="fas fa-graduation-cap me-1"></i> <span th:text="${lec.degree + ' - ' + lec.specialization}">Học vị</span></div>
+                                    <div class="text-muted small"><i class="fas fa-briefcase me-1"></i> Exp: <span th:text="${lec.experienceYears}">5</span> năm</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a th:href="@{/student/booking}" class="btn btn-outline-secondary px-4 rounded-3">Quay lại</a>
+                    <button type="submit" name="action" value="select-lecturer" class="btn btn-primary px-5 rounded-3">Tiếp theo</button>
+                </div>
+            </div>
+
+            <div th:if="${step == 3}">
+                <input type="hidden" th:field="*{departmentId}">
+                <input type="hidden" th:field="*{lecturerId}">
+                <h5 class="step-title"><span>3</span> Đề xuất thời gian & Nội dung</h5>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-muted">THỜI GIAN MONG MUỐN</label>
+                        <input type="datetime-local" th:field="*{bookingDate}" class="form-control py-2" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold small text-muted">NỘI DUNG CẦN HỖ TRỢ</label>
+                        <textarea th:field="*{reason}" class="form-control" rows="3" placeholder="Nhập nội dung bạn cần trao đổi..."></textarea>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" name="action" value="select-dept" class="btn btn-outline-secondary px-4 rounded-3">Quay lại</button>
+                    <button type="submit" name="action" value="select-time" class="btn btn-primary px-5 rounded-3">Xem xác nhận</button>
+                </div>
+            </div>
+
+            <div th:if="${step == 4}">
+                <input type="hidden" th:field="*{departmentId}">
+                <input type="hidden" th:field="*{lecturerId}">
+                <input type="hidden" th:field="*{bookingDate}">
+                <input type="hidden" th:field="*{reason}">
+
+                <h5 class="step-title"><span>4</span> Xác nhận yêu cầu</h5>
+                <div class="bg-light p-4 rounded-4 border-dashed mb-3">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="small text-muted">GIẢNG VIÊN</div>
+                            <div class="fw-bold" th:text="${selectedLecturer.user.fullName}">Tên Giảng Viên</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="small text-muted">THỜI GIAN ĐỀ XUẤT</div>
+                            <div class="fw-bold" th:text="${#temporals.format(bookingData.bookingDate, 'HH:mm dd/MM/yyyy')}"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="small text-muted">NỘI DUNG</div>
+                            <div class="fst-italic" th:text="${bookingData.reason}">Nội dung</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-warning small rounded-3 text-dark">
+                    <i class="fas fa-info-circle me-1"></i> Yêu cầu của bạn sẽ được gửi ở trạng thái <b>Chờ duyệt</b>. Giảng viên sẽ chỉ định phòng Lab sau khi đồng ý.
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" name="action" value="select-lecturer" class="btn btn-outline-secondary px-4 rounded-3">Sửa lại</button>
+                    <button type="submit" name="action" value="confirm" class="btn btn-success px-5 rounded-3 fw-bold">GỬI YÊU CẦU</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>

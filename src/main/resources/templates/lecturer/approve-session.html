@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#student-content}, 'Đặt lịch - SmartAcademic', 'booking-session')}">
+<body>
+
+<div id="student-content">
+    <style>
+        .card-radio { display: none; }
+        .booking-card { cursor: pointer; border: 2px solid #edf2f7; border-radius: 16px; padding: 20px; transition: all 0.3s ease; height: 100%; display: block; background: white; }
+        .booking-card:hover { transform: translateY(-4px); border-color: #4361ee; box-shadow: 0 10px 20px rgba(67, 97, 238, 0.1); }
+        .card-radio:checked + .booking-card { border-color: #4361ee; background-color: #f8faff; position: relative; }
+        .card-radio:checked + .booking-card::after { content: "\f058"; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; top: 10px; right: 15px; color: #4361ee; font-size: 1.2rem; }
+        .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; background: #f0f3ff; color: #4361ee; font-size: 1.25rem; }
+        .avatar-circle { width: 50px; height: 50px; background: #4361ee; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; }
+        .step-title { color: #2d3748; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; }
+        .step-title span { background: #4361ee; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; margin-right: 10px; }
+    </style>
+
+    <div class="mb-4">
+        <h3 class="fw-bold text-primary mb-1">Đặt lịch hỗ trợ</h3>
+        <p class="text-muted">Hoàn thành các bước dưới đây để đặt lịch với giảng viên</p>
+    </div>
+
+    <div id="lecturer-content">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mx-auto" style="max-width: 600px;">
+            <h5 class="fw-bold mb-4 text-primary">Chỉ định phòng Lab cho yêu cầu</h5>
+
+            <form th:action="@{/lecturer/booking/confirm-approve}" method="post">
+                <input type="hidden" name="sessionId" th:value="${targetSession.id}">
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">SINH VIÊN ĐẶT LỊCH</label>
+                    <input type="text" class="form-control bg-light" th:value="${targetSession.student.fullName}" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">CHỌN PHÒNG LAB</label>
+                    <select name="labId" class="form-select" required>
+                        <option value="">-- Chọn phòng Lab --</option>
+                        <option th:each="lab : ${labs}" th:value="${lab.id}" th:text="${lab.name}"></option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">GHI CHÚ (NẾU CÓ)</label>
+                    <textarea name="note" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a th:href="@{/lecturer/dashboard}" class="btn btn-light flex-grow-1">Hủy</a>
+                    <button type="submit" class="btn btn-primary flex-grow-1">Xác nhận duyệt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

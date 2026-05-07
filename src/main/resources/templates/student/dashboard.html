@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#student-content}, 'Bảng điều khiển - Sinh viên', 'dashboard')}">
+<body>
+
+<div id="student-content">
+    <div class="mb-4">
+        <h3 class="fw-bold text-primary mb-1">Bảng điều khiển Sinh viên</h3>
+        <p class="text-muted">Theo dõi tiến độ học tập và lịch hẹn của bạn</p>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="bg-white p-4 rounded-4 shadow-sm d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted d-block mb-1">Lịch hẹn sắp tới</small>
+                    <h2 class="fw-bold mb-0">0</h2>
+                </div>
+                <div class="p-3 bg-info-subtle text-info rounded-3"><i class="fas fa-calendar-check"></i></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-white p-4 rounded-4 shadow-sm d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted d-block mb-1">Thiết bị đang mượn</small>
+                    <h2 class="fw-bold mb-0">2</h2>
+                </div>
+                <div class="p-3 bg-warning-subtle text-warning rounded-3"><i class="fas fa-microchip"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm">
+        <h5 class="fw-bold mb-4">Hoạt động gần đây</h5>
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="text-muted small">
+                <tr>
+                    <th>GIẢNG VIÊN</th>
+                    <th>THỜI GIAN</th>
+                    <th>TRẠNG THÁI</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td colspan="3" class="text-center py-4 text-muted">Chưa có hoạt động nào gần đây</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

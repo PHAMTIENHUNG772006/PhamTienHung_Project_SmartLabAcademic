@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#admin-dashboard}, 'Quản trị - SmartAcademic', 'dashboard')}">
+<body>
+
+<div id="admin-dashboard">
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">Tổng quan Hệ thống</h3>
+        <p class="text-secondary">Quản lý và giám sát hoạt động toàn hệ thống</p>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card d-flex align-items-center justify-content-between">
+                <div>
+                    <small class="text-secondary fw-bold">Tổng thiết bị</small>
+                    <h3 class="fw-bold mb-0">198</h3>
+                </div>
+                <div class="icon-box bg-primary-subtle text-primary"><i class="fas fa-box"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card d-flex align-items-center justify-content-between">
+                <div>
+                    <small class="text-secondary fw-bold">Đang cho mượn</small>
+                    <h3 class="fw-bold mb-0">53</h3>
+                </div>
+                <div class="icon-box bg-warning-subtle text-warning"><i class="fas fa-chart-line"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card d-flex align-items-center justify-content-between">
+                <div>
+                    <small class="text-secondary fw-bold">Chờ cấp phát</small>
+                    <h3 class="fw-bold mb-0" th:text="${pendingRequests ?: 1}">1</h3>
+                </div>
+                <div class="icon-box bg-info-subtle text-info"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card d-flex align-items-center justify-content-between">
+                <div>
+                    <small class="text-secondary fw-bold">Buổi tư vấn</small>
+                    <h3 class="fw-bold mb-0">2</h3>
+                </div>
+                <div class="icon-box bg-success-subtle text-success"><i class="fas fa-user-check"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="stat-card">
+                <h5 class="fw-bold mb-4">Top Giảng viên tư vấn nhiều nhất</h5>
+                <div class="lecturer-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-light text-dark rounded-circle p-2">1</span>
+                        <div>
+                            <div class="fw-bold">PGS. Trần Văn Khoa</div>
+                            <small class="text-secondary">Khoa học Máy tính</small>
+                        </div>
+                    </div>
+                    <div class="w-25 text-end">
+                        <div class="progress mb-1"><div class="progress-bar" style="width: 85%"></div></div>
+                        <small class="fw-bold">51 buổi</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="stat-card h-100">
+                <div class="d-flex justify-content-between mb-4">
+                    <h5 class="fw-bold">Thiết bị sắp hết kho</h5>
+                    <a href="#" class="text-primary text-decoration-none small">Quản lý ></a>
+                </div>
+                <div class="text-center py-5">
+                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" style="width: 80px; opacity: 0.2;" class="mb-3">
+                    <p class="text-secondary">Tất cả thiết bị đủ kho</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

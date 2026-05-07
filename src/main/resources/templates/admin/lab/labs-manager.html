@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#admin-dashboard}, 'Quản trị - SmartAcademic', 'labs-manager')}">
+<body>
+
+<div id="admin-dashboard">
+    <style>
+        /* Tùy chỉnh bảng */
+        .custom-table thead th {
+            background-color: #f8f9fa !important;
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .custom-table tbody td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        /* Hiệu ứng hover dòng */
+        .custom-table tbody tr:hover {
+            background-color: #f8faff;
+            transition: all 0.2s ease;
+        }
+
+        /* Badge Trạng thái */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        .status-available { background-color: #d1fae5; color: #065f46; }
+        .status-closed { background-color: #fee2e2; color: #991b1b; }
+        .status-maintenance { background-color: #fef3c7; color: #92400e; }
+
+        /* Nút hành động */
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-edit { color: #f59e0b; border: 1px solid #fef3c7; background: #fffbeb; }
+        .btn-edit:hover { background: #f59e0b; color: #fff; transform: translateY(-2px); }
+
+        .btn-delete { color: #ef4444; border: 1px solid #fee2e2; background: #fef2f2; }
+        .btn-delete:hover { background: #ef4444; color: #fff; transform: translateY(-2px); }
+
+        .capacity-pill {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    </style>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-primary" style="color: #4361ee !important;">Quản lý phòng Lab</h3>
+            <p class="text-secondary">Hệ thống quản lý và giám sát phòng thí nghiệm</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle custom-table">
+                <thead>
+                <tr>
+                    <th class="text-center" style="width: 60px;">STT</th>
+                    <th>ID</th>
+                    <th>Tên phòng</th>
+                    <th class="text-center">Sức chứa</th>
+                    <th>Vị trí</th>
+                    <th>Mô tả</th>
+                    <th class="text-center">Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item, state : ${labs}">
+                    <td class="text-center text-muted" th:text="${state.index + 1}">1</td>
+                    <td class="fw-bold text-dark" th:text="${'#' + item.id}">#1</td>
+                    <td>
+                        <div class="fw-bold text-dark" th:text="${item.name}">Phòng Lab AI</div>
+                    </td>
+                    <td class="text-center">
+                        <span class="capacity-pill" th:text="${item.capacity + ' chỗ'}">30 chỗ</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-map-marker-alt text-danger me-2" style="font-size: 0.8rem;"></i>
+                            <span th:text="${item.location}">Tòa A2</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-muted small text-truncate d-inline-block"
+                              style="max-width: 150px;"
+                              th:text="${item.description}"
+                              th:title="${item.description}">Mô tả</span>
+                    </td>
+                    <td class="text-center">
+                        <span th:if="${item.status.name() == 'AVAILABLE'}" class="status-badge status-available">Sẵn sàng</span>
+                        <span th:if="${item.status.name() == 'CLOSED'}" class="status-badge status-closed">Đang đóng</span>
+                        <span th:if="${item.status.name() == 'MAINTENANCE'}" class="status-badge status-maintenance">Bảo trì</span>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(labs)}">
+                    <td colspan="8" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="fas fa-folder-open fs-1 d-block mb-3"></i>
+                            <span>Chưa có dữ liệu phòng Lab.</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

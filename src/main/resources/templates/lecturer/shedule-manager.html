@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#lecturer-content}, 'Quản lý lịch hẹn', 'manage-sessions')}">
+<body>
+
+<div id="lecturer-content">
+    <div class="mb-4">
+        <h3 class="fw-bold text-primary mb-1">Danh sách yêu cầu hỗ trợ</h3>
+        <p class="text-muted">Phê duyệt lịch hẹn và chỉ định phòng Lab</p>
+    </div>
+
+    <div class="bg-white rounded-4 shadow-sm overflow-hidden">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+            <tr class="small text-muted">
+                <th class="ps-4">SINH VIÊN</th>
+                <th>NỘI DUNG</th>
+                <th>THỜI GIAN</th>
+                <th class="text-center">THAO TÁC</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="session : ${pendingSessions}">
+                <td class="ps-4">
+                    <div class="fw-bold" th:text="${session.student.fullName}">Nguyễn Văn A</div>
+                    <small class="text-muted" th:text="${session.student.username}">B21DCCN123</small>
+                </td>
+                <td>
+                    <div class="text-truncate" style="max-width: 200px;" th:text="${session.topic}">Hỏi về Spring Security</div>
+                </td>
+                <td>
+                    <span class="d-block small fw-bold" th:text="${#temporals.format(session.startTime, 'dd/MM/yyyy')}"></span>
+                    <span class="small text-muted" th:text="${#temporals.format(session.startTime, 'HH:mm')}"></span>
+                </td>
+                <td class="text-center">
+                    <div class="d-flex justify-content-center gap-2">
+                        <a th:href="@{/lecturer/booking/approve-form/{id}(id=${session.id})}"
+                           class="btn btn-sm btn-success px-3 rounded-pill">
+                            <i class="fas fa-check me-1"></i> Duyệt
+                        </a>
+
+                        <form th:action="@{/lecturer/booking/reject}" method="post">
+                            <input type="hidden" name="sessionId" th:value="${session.id}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger px-3 rounded-pill">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(pendingSessions)}">
+                <td colspan="4" class="text-center py-5 text-muted">Hiện không có yêu cầu nào.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
