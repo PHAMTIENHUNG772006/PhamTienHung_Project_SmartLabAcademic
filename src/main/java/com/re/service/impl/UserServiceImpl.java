@@ -83,7 +83,6 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public void adminCreateUser(UserRequestDTO dto) {
-        // 1. Khởi tạo User từ DTO
         User user = User.builder()
                 .fullName(dto.getFullName())
                 .email(dto.getEmail())

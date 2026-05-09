@@ -27,7 +27,7 @@ public class BorrowingRecord {
     @Enumerated(EnumType.STRING)
     private BorrowingStatus status;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "session_id")
     private MentoringSession session;
 

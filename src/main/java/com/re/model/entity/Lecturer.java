@@ -34,6 +34,5 @@ public class Lecturer {
     @OneToMany(mappedBy = "lecturer")
     private List<LecturerSchedule> schedules;
 
-    @OneToMany(mappedBy = "lecturer")
-    private List<MentoringSession> sessions;
+
 }

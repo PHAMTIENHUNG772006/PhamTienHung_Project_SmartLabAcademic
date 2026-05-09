@@ -5,11 +5,9 @@ import com.re.model.dto.EquipmentDTO;
 import com.re.model.dto.UserDTO;
 import com.re.model.dto.UserRequestDTO;
 import com.re.model.entity.*;
+import com.re.model.enums.BorrowingStatus;
 import com.re.model.enums.Role;
-import com.re.service.DepartmentService;
-import com.re.service.EquimentService;
-import com.re.service.LabService;
-import com.re.service.UserService;
+import com.re.service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -39,6 +38,9 @@ public class AdminController {
 
     @Autowired
     private UserService userServices;
+
+    @Autowired
+    private BorrowwingRecordService borrowingService;
 
 
     @GetMapping("/dashboard")
@@ -102,8 +104,13 @@ public class AdminController {
 
 
     @GetMapping("/equipments/delete/{id}")
-    public String delete(@PathVariable Long id){
-        equimentService.delete(id);
+    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            equimentService.delete(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa thiết bị thành công!");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/admin/equipments";
     }
 
@@ -149,6 +156,14 @@ public class AdminController {
         model.addAttribute("equipment",equipmentRequest);
 
         return "admin/equipment/equipment-form";
+    }
+
+    @GetMapping("/user/lock/{id}")
+    public String lock(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+        userService.lock(id);
+
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/labs")
@@ -211,5 +226,34 @@ public class AdminController {
         }
 
         return "admin/user/user-create";
+    }
+
+
+    // Duyệt đơn mượn thiết bị - Màn hình danh sách
+    @GetMapping("/equipments/borrowing")
+    public String list(Model model) {
+        List<BorrowingRecord> records = borrowingService.findAll();
+        model.addAttribute("borrowingRecords", records);
+        model.addAttribute("pendingCount", records.stream()
+                .filter(r -> r.getStatus() == BorrowingStatus.PENDING).count());
+        return "admin/equipment/approved-equipment";
+    }
+
+
+    @PostMapping("/equipments/borrowing/confirm/{id}")
+    public String confirm(@PathVariable Long id) {
+        try {
+            borrowingService.confirmBorrowing(id);
+
+            return "redirect:/admin/equipments/borrowing?success=confirmed";
+        } catch (Exception e) {
+            return "redirect:/admin/equipments/borrowing?error=" + e.getMessage();
+        }
+    }
+
+    @PostMapping("/equipments/borrowing/cancel/{id}")
+    public String cancel(@PathVariable Long id) {
+        borrowingService.cancelBorrowing(id);
+        return "redirect:/admin/equipments/borrowing?success=cancelled";
     }
 }

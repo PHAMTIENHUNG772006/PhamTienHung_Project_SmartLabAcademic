@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#evaluation-content}, 'Đánh giá năng lực', 'appointments')}">
+<body>
+<div id="evaluation-content" class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-edit me-2"></i>Đánh giá ca tư vấn</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
+
+                    <div class="alert alert-info border-0 mb-4">
+                        <p class="mb-1"><strong>Sinh viên:</strong>
+                            <span th:text="${mentoringSession.student != null ? mentoringSession.student.fullName : 'N/A'}"></span>
+                        </p>
+                        <p class="mb-1"><strong>Chủ đề:</strong>
+                            <span th:text="${mentoringSession.topic}"></span>
+                        </p>
+                    </div>
+
+                    <form th:action="@{/lecturer/mentoring/complete}" method="post" th:object="${evaluation}">
+
+                        <input type="hidden" name="sessionId" th:value="${mentoringSession.id}" />
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label fw-bold">Kết quả chung</label>
+                                <input type="text" th:field="*{result}" class="form-control" placeholder="Ví dụ: Đạt yêu cầu..." required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Điểm số</label>
+                                <input type="number" step="0.1" min="0" max="10" th:field="*{score}" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nhận xét chi tiết</label>
+                            <textarea th:field="*{feedback}" class="form-control" rows="3" placeholder="Nhập nhận xét cho sinh viên..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Thiết bị cấp phát (Nếu có)</label>
+                            <select name="equipmentId" class="form-select">
+                                <option value="">-- Không sử dụng thiết bị --</option>
+                                <th:block th:if="${equipments != null}">
+                                    <option th:each="equi : ${equipments}"
+                                            th:value="${equi.id}"
+                                            th:text="${equi.name + ' (Còn: ' + equi.availableQuantity + ')'}"></option>
+                                </th:block>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/lecturer/appointments}" class="btn btn-light px-4">Quay lại</a>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill">Hoàn tất & Lưu</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

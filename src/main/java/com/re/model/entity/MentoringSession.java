@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
@@ -15,7 +16,6 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class MentoringSession {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +33,7 @@ public class MentoringSession {
     @JoinColumn(name = "lab_id")
     private Lab lab;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
     private User student;
 
@@ -41,9 +41,10 @@ public class MentoringSession {
     @JoinColumn(name = "lecturer_id")
     private Lecturer lecturer;
 
-    @OneToOne(mappedBy = "session")
-    private AcademicEvaluation evaluation;
+    @OneToMany(mappedBy = "session", fetch = FetchType.LAZY)
+    private List<BorrowingRecord> borrowingRecords;
 
-    @OneToOne(mappedBy = "session")
-    private BorrowingRecord borrowingRecord;
+    @OneToOne
+    @JoinColumn(name = "academic_evaluation_id")
+    private AcademicEvaluation academicEvaluation;
 }

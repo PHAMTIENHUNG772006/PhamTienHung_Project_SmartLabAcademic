@@ -38,6 +38,9 @@
       <a th:href="@{/student/booking}" class="nav-link" th:classappend="${currentMenu == 'booking' ? 'active' : ''}">
         <i class="fas fa-calendar-plus me-3"></i>Đặt lịch tư vấn
       </a>
+      <a th:href="@{/student/history}" class="nav-link" th:classappend="${currentMenu == 'history' ? 'active' : ''}">
+        <i class="fas fa-book me-3"></i>Hồ sơ học thuật
+      </a>
       <a th:href="@{/student/profile}" class="nav-link" th:classappend="${currentMenu == 'profile' ? 'active' : ''}">
         <i class="fas fa-user-circle me-3"></i>Hồ sơ cá nhân
       </a>
@@ -72,6 +75,9 @@
       </a>
       <a th:href="@{/admin/equipments}" class="nav-link" th:classappend="${currentMenu == 'equipments' ? 'active' : ''}">
         <i class="fas fa-tools me-3"></i>Quản lý thiết bị
+      </a>
+      <a th:href="@{/admin/equipments/borrowing}" class="nav-link" th:classappend="${currentMenu == 'borrowing-manager' ? 'active' : ''}">
+        <i class="fas fa-clipboard-check me-3"></i>Duyệt phiếu mượn
       </a>
       <a th:href="@{/admin/profile}" class="nav-link" th:classappend="${currentMenu == 'profile' ? 'active' : ''}">
         <i class="fas fa-user-tie me-3"></i>Hồ sơ cá nhân

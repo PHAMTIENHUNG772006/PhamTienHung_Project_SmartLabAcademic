@@ -14,6 +14,22 @@
             --border-color: #e9ecef;
         }
 
+        .auto-hide-alert {
+            animation: fadeOut 1s forwards;
+            animation-delay: 1s;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+                height: 0;
+                margin: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+        }
+
         body {
             background-color: #fdfdfd;
             /* Họa tiết lưới cực nhẹ, chỉ thấy khi nhìn kỹ */
@@ -128,6 +144,15 @@
             <span class="status-tag">Lab Support Platform</span>
             <h4 class="fw-bold m-0">Chào mừng trở lại</h4>
             <p class="text-muted small">Đăng nhập để vào hệ thống học thuật</p>
+        </div>
+
+        <!-- Thông báo tài khoản bị khóa -->
+        <div th:if="${lockAccount}"
+             id="lock-alert"
+             class="alert alert-danger alert-dismissible fade show small mb-4  auto-hide-alert"
+             role="alert">
+            <i class="bi bi-lock-fill me-2"></i>
+            <span th:text="${lockAccount}"></span>
         </div>
 
         <form th:action="@{/auth/login}" method="post">

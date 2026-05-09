@@ -1,5 +1,6 @@
 package com.re.model.entity;
 
+import com.re.model.enums.EquipmentCategory;
 import com.re.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +25,9 @@ public class Equipment {
     private String description;
     private Integer availableQuantity;
     private Boolean status;
+
+    @Enumerated(EnumType.STRING)
+    private EquipmentCategory category;
 
     @OneToMany(mappedBy = "equipment")
     private List<BorrowingDetail> borrowingDetails;

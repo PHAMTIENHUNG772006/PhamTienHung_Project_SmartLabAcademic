@@ -1,58 +1,96 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/main-layout :: main-layout(~{::#lecturer-content}, 'Quản lý lịch hẹn', 'manage-sessions')}">
+      th:replace="~{layout/main-layout :: main-layout(~{::#lecturer-content}, 'Quản lý lịch hẹn', 'appointments')}">
 <body>
 
 <div id="lecturer-content">
-    <div class="mb-4">
-        <h3 class="fw-bold text-primary mb-1">Danh sách yêu cầu hỗ trợ</h3>
-        <p class="text-muted">Phê duyệt lịch hẹn và chỉ định phòng Lab</p>
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="fw-bold text-primary mb-1">Quản lý lịch hẹn tư vấn</h3>
+            <p class="text-muted">Phê duyệt yêu cầu mới và đánh giá các ca đã hoàn thành</p>
+        </div>
+        <div th:if="${param.success}" class="alert alert-success py-2 mb-0">Thao tác thành công!</div>
     </div>
 
-    <div class="bg-white rounded-4 shadow-sm overflow-hidden">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="bg-light">
-            <tr class="small text-muted">
-                <th class="ps-4">SINH VIÊN</th>
-                <th>NỘI DUNG</th>
-                <th>THỜI GIAN</th>
-                <th class="text-center">THAO TÁC</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="session : ${pendingSessions}">
-                <td class="ps-4">
-                    <div class="fw-bold" th:text="${session.student.fullName}">Nguyễn Văn A</div>
-                    <small class="text-muted" th:text="${session.student.username}">B21DCCN123</small>
-                </td>
-                <td>
-                    <div class="text-truncate" style="max-width: 200px;" th:text="${session.topic}">Hỏi về Spring Security</div>
-                </td>
-                <td>
-                    <span class="d-block small fw-bold" th:text="${#temporals.format(session.startTime, 'dd/MM/yyyy')}"></span>
-                    <span class="small text-muted" th:text="${#temporals.format(session.startTime, 'HH:mm')}"></span>
-                </td>
-                <td class="text-center">
-                    <div class="d-flex justify-content-center gap-2">
-                        <a th:href="@{/lecturer/booking/approve-form/{id}(id=${session.id})}"
-                           class="btn btn-sm btn-success px-3 rounded-pill">
-                            <i class="fas fa-check me-1"></i> Duyệt
-                        </a>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="mb-0 text-warning fw-bold"><i class="fas fa-clock me-2"></i>Yêu cầu mới (Chờ duyệt)</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                <tr class="small text-muted text-uppercase">
+                    <th class="ps-4">Sinh viên</th>
+                    <th>Nội dung</th>
+                    <th>Thời gian dự kiến</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="booking : ${sessions}">
+                    <td class="ps-4">
+                        <div class="fw-bold" th:text="${booking.student.fullName}"></div>
+                        <small class="text-muted" th:text="${booking.student.email}"></small>
+                    </td>
+                    <td><div class="text-truncate" style="max-width: 250px;" th:text="${booking.topic}"></div></td>
+                    <td>
+                        <span class="d-block small fw-bold" th:text="${#temporals.format(booking.startTime, 'dd/MM/yyyy')}"></span>
+                        <span class="small text-muted" th:text="${#temporals.format(booking.startTime, 'HH:mm')}"></span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a th:href="@{/lecturer/booking/approve/{id}(id=${booking.id})}"
+                               class="btn btn-sm btn-success px-3 rounded-pill">Duyệt</a>
+                            <form th:action="@{/lecturer/booking/reject}" method="post">
+                                <input type="hidden" name="sessionId" th:value="${booking.id}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger px-3 rounded-pill">Từ chối</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(sessions)}">
+                    <td colspan="4" class="text-center py-4 text-muted">Không có yêu cầu nào đang chờ.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                        <form th:action="@{/lecturer/booking/reject}" method="post">
-                            <input type="hidden" name="sessionId" th:value="${session.id}">
-                            <button type="submit" class="btn btn-sm btn-outline-danger px-3 rounded-pill">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(pendingSessions)}">
-                <td colspan="4" class="text-center py-5 text-muted">Hiện không có yêu cầu nào.</td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="mb-0 text-primary fw-bold"><i class="fas fa-calendar-check me-2"></i>Lịch sắp diễn ra (Đã duyệt)</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                <tr class="small text-muted text-uppercase">
+                    <th class="ps-4">Sinh viên</th>
+                    <th>Phòng Lab</th>
+                    <th>Ghi chú</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="approved : ${approvedSessions}">
+                    <td class="ps-4">
+                        <div class="fw-bold" th:text="${approved.student.fullName}"></div>
+                        <small class="text-muted" th:text="${#temporals.format(approved.startTime, 'dd/MM HH:mm')}"></small>
+                    </td>
+                    <td><span class="badge bg-info text-dark" th:text="${approved.lab.name}"></span></td>
+                    <td class="small text-muted" th:text="${approved.note}"></td>
+                    <td class="text-center">
+                        <a th:href="@{/lecturer/booking/approve-form/{id}(id=${approved.id})}"
+                           class="btn btn-sm btn-primary px-4 rounded-pill">
+                            <i class="fas fa-edit me-1"></i> Đánh giá & Kết thúc
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(approvedSessions)}">
+                    <td colspan="4" class="text-center py-4 text-muted">Chưa có lịch hẹn nào được duyệt.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

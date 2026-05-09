@@ -3,9 +3,17 @@ package com.re.service;
 import com.re.model.entity.Lecturer;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface LecturerService{
+public interface LecturerService {
+
+    Optional<Lecturer> findById(Long id);
+
+    Optional<Lecturer> findByUserId(Long userId);
+
     List<Lecturer> findAll();
-    Lecturer findLecturerById(Long id);
-    List<Lecturer> findLecturerByDepartmentId(Long id);
+
+    List<Lecturer> findLecturerByDepartmentId(Long departmentId);
+
+    Lecturer save(Lecturer lecturer);
 }

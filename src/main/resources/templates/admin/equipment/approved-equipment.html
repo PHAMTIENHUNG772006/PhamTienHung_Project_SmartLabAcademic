@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#admin-borrowing}, 'Duyệt cấp phát thiết bị', 'borrowing-manager')}">
+<body>
+
+<div id="admin-borrowing">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Duyệt cấp phát thiết bị</h3>
+            <p class="text-secondary">Xác nhận xuất kho cho các yêu cầu mượn thiết bị từ Giảng viên</p>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge bg-warning text-dark p-2">Đang chờ xử lý: <span th:text="${pendingCount}">0</span></span>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th class="py-3">STT</th>
+                    <th class="py-3">Thông tin ca tư vấn</th>
+                    <th class="py-3">Thiết bị yêu cầu</th>
+                    <th class="py-3">Số lượng</th>
+                    <th class="py-3">Trạng thái</th>
+                    <th class="py-3 text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="record, state : ${borrowingRecords}">
+                    <td th:text="${state.index + 1}">1</td>
+                    <td>
+                        <div class="fw-bold" th:text="${record.session.topic}">Chủ đề tư vấn</div>
+                        <small class="text-muted">
+                            GV: <span th:text="${record.session.lecturer.user.fullName}">Giảng viên A</span><br>
+                            Phòng: <span th:text="${record.session.lab.name}">Lab 101</span>
+                        </small>
+                    </td>
+                    <td>
+                        <ul class="list-unstyled mb-0">
+                            <li th:each="detail : ${record.details}" th:text="${detail.equipment.name}"></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <span th:each="detail : ${record.details}"
+                              class="badge bg-info-subtle text-info"
+                              th:text="${detail.quantity}">1</span>
+                    </td>
+                    <td>
+                        <span th:if="${record.status.name() == 'PENDING'}" class="badge bg-warning text-dark">Chờ cấp phát</span>
+                        <span th:if="${record.status.name() == 'BORROWED'}" class="badge bg-success">Đang mượn</span>
+                        <span th:if="${record.status.name() == 'RETURNED'}" class="badge bg-primary">Đã trả</span>
+                        <span th:if="${record.status.name() == 'CANCELLED'}" class="badge bg-danger">Đã hủy</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2" th:if="${record.status.name() == 'PENDING'}">
+                            <form th:action="@{/admin/equipments/borrowing/confirm/{id}(id=${record.id})}" method="post">
+                                <button type="submit" class="btn btn-sm btn-success px-3 rounded-pill"
+                                        onclick="return confirm('Xác nhận xuất kho cho thiết bị này?')">
+                                    <i class="fas fa-check me-1"></i> Xuất kho
+                                </button>
+                            </form>
+
+                            <form th:action="@{/admin/equipments/borrowing/cancel/{id}(id=${record.id})}" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-danger px-3 rounded-pill">
+                                    <i class="fas fa-times me-1"></i> Hủy
+                                </button>
+                            </form>
+                        </div>
+                        <div th:unless="${record.status.name() == 'PENDING'}">
+                            <span class="text-muted small italic">Không có hành động</span>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(borrowingRecords)}">
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox d-block mb-2 fs-2"></i>
+                        Không có yêu cầu mượn thiết bị nào cần xử lý.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

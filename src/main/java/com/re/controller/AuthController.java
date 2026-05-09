@@ -69,6 +69,11 @@ public class AuthController {
             hasError = true;
         }
 
+        User userDb = userService.findByEmail(email);
+        if (userDb.getStatus() == false) {
+            redirect.addFlashAttribute("lockAccount","Tài khoải của bạn đang bị khóa");
+        }
+
         if (hasError) return "redirect:/auth/login";
 
 
