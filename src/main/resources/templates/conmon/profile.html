@@ -4,78 +4,261 @@
 <body>
 
 <div id="profile-content">
+    <!-- Header -->
     <div class="mb-4">
         <h3 class="fw-bold text-primary mb-1">Cài đặt tài khoản</h3>
         <p class="text-muted">Quản lý thông tin cá nhân và bảo mật</p>
     </div>
 
     <div class="row g-4">
+
+        <!-- Sidebar Profile -->
         <div class="col-lg-4">
-            <div class="bg-white p-4 rounded-4 shadow-sm text-center">
+            <div class="bg-white p-4 rounded-4 shadow-sm text-center border-0">
+
                 <div class="position-relative d-inline-block mb-3">
-                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow"
                          style="width: 100px; height: 100px; font-size: 2rem;"
-                         th:text="${#strings.substring(user.fullName,0,2).toUpperCase()}">MI</div>
-                    <button class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle border-white border-3">
-                        <i class="fas fa-pen fa-xs"></i>
-                    </button>
+                         th:text="${#strings.substring(user.fullName,0,2).toUpperCase()}">
+                        MI
+                    </div>
                 </div>
-                <h5 class="fw-bold mb-1" th:text="${user.fullName}">Tên người dùng</h5>
-                <p class="text-muted small" th:text="${user.role.name}">Vai trò</p>
+
+                <h5 class="fw-bold mb-1"
+                    th:text="${user.fullName}">
+                    Tên người dùng
+                </h5>
+
+                <p class="text-muted small mb-3"
+                   th:text="${user.role.name}">
+                    Vai trò
+                </p>
 
                 <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
-                    <small class="text-uppercase fw-bold text-muted" style="font-size: 0.7rem;">Trạng thái</small>
-                    <span class="badge bg-success-subtle text-success rounded-pill">
-                        <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> Đang hoạt động
+                    <small class="text-uppercase fw-bold text-muted"
+                           style="font-size: 0.7rem;">
+                        Trạng thái
+                    </small>
+
+                    <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
+                        <i class="fas fa-circle me-1"
+                           style="font-size: 0.5rem;"></i>
+                        Đang hoạt động
                     </span>
                 </div>
             </div>
         </div>
 
+        <!-- Main Form -->
         <div class="col-lg-8">
-            <div class="bg-white p-4 rounded-4 shadow-sm">
-                <h5 class="fw-bold mb-4">Thông tin chi tiết</h5>
+            <div class="bg-white p-4 p-lg-5 rounded-4 shadow-sm border-0">
 
-                <form th:action="@{profile/update}" method="post">
-                    <div class="row g-3">
+                <!-- Form Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark">Thông tin chi tiết</h4>
+                        <p class="text-muted small mb-0">
+                            Cập nhật thông tin cá nhân và hồ sơ chuyên môn
+                        </p>
+                    </div>
+
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
+                        <i class="fas fa-user-edit me-1"></i>
+                        Chỉnh sửa hồ sơ
+                    </span>
+                </div>
+
+                <!-- FORM -->
+                <form th:action="@{/profile/update}"
+                      th:object="${profile}"
+                      method="post">
+
+                    <div class="row g-4">
+
+                        <!-- Họ và tên -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Họ và Tên</label>
-                            <input type="text" class="form-control bg-light border-0 py-2" name="fullName" th:value="${user.fullName}">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                <i class="fas fa-user me-1 text-primary"></i>
+                                Họ và Tên
+                            </label>
+
+                            <input type="text"
+                                   name="fullName"
+                                   class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                   th:value="${user.fullName}"
+                                   placeholder="Nhập họ và tên">
                         </div>
+
+                        <!-- Email -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Email cá nhân</label>
-                            <input type="email" class="form-control bg-light border-0 py-2" readonly th:value="${user.email}">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                <i class="fas fa-envelope me-1 text-primary"></i>
+                                Email cá nhân
+                            </label>
+
+                            <input type="email"
+                                   class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                   th:value="${user.email}"
+                                   readonly>
                         </div>
+
+                        <!-- Số điện thoại -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Số điện thoại</label>
-                            <input type="text" class="form-control bg-light border-0 py-2" name="phone" th:value="${profile?.phone}">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                <i class="fas fa-phone me-1 text-primary"></i>
+                                Số điện thoại
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{phone}"
+                                   class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                   th:classappend="${#fields.hasErrors('phone')} ? ' is-invalid' : ''"
+                                   placeholder="Nhập số điện thoại">
+
+                            <div class="invalid-feedback d-block"
+                                 th:if="${#fields.hasErrors('phone')}"
+                                 th:errors="*{phone}">
+                                Lỗi số điện thoại
+                            </div>
                         </div>
+
+                        <!-- Giới tính -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Ngày sinh</label>
-                            <input type="date" class="form-control bg-light border-0 py-2" name="dob" th:value="${profile?.dateOfBirth}">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                <i class="fas fa-venus-mars me-1 text-primary"></i>
+                                Giới tính
+                            </label>
+
+                            <select th:field="*{gender}"
+                                    class="form-select bg-light border-0 py-3 rounded-3 shadow-sm"
+                                    th:classappend="${#fields.hasErrors('gender')} ? ' is-invalid' : ''">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+
+                            <div class="invalid-feedback d-block"
+                                 th:if="${#fields.hasErrors('gender')}"
+                                 th:errors="*{gender}">
+                                Lỗi giới tính
+                            </div>
                         </div>
+
+                        <!-- Ngày sinh -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                <i class="fas fa-calendar-alt me-1 text-primary"></i>
+                                Ngày sinh
+                            </label>
+
+                            <input type="date"
+                                   th:field="*{dateOfBirth}"
+                                   class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                   th:classappend="${#fields.hasErrors('dateOfBirth')} ? ' is-invalid' : ''">
+
+                            <div class="invalid-feedback d-block"
+                                 th:if="${#fields.hasErrors('dateOfBirth')}"
+                                 th:errors="*{dateOfBirth}">
+                                Lỗi ngày sinh
+                            </div>
+                        </div>
+
+                        <!-- Địa chỉ -->
                         <div class="col-md-12">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Địa chỉ thường trú</label>
-                            <textarea class="form-control bg-light border-0 py-2" rows="3" name="address" th:text="${profile?.address}"></textarea>
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+                                Địa chỉ thường trú
+                            </label>
+
+                            <textarea th:field="*{address}"
+                                      rows="4"
+                                      class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                      th:classappend="${#fields.hasErrors('address')} ? ' is-invalid' : ''"
+                                      placeholder="Nhập địa chỉ thường trú"></textarea>
+
+                            <div class="invalid-feedback d-block"
+                                 th:if="${#fields.hasErrors('address')}"
+                                 th:errors="*{address}">
+                                Lỗi địa chỉ
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row g-3 mt-2" th:if="${user.role.name == 'LECTURER'}">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Học vị</label>
-                            <input type="text" class="form-control bg-light border-0 py-2" name="degree" th:value="${user.lecturer?.degree}">
+                    <!-- THÔNG TIN GIẢNG VIÊN -->
+                    <div th:if="${user.role.name == 'LECTURER'}"
+                         class="mt-5 pt-4 border-top">
+
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                 style="width: 45px; height: 45px;">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+
+                            <div>
+                                <h5 class="fw-bold mb-1">Thông tin chuyên môn</h5>
+                                <p class="text-muted small mb-0">
+                                    Hồ sơ học thuật dành cho giảng viên
+                                </p>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Chuyên môn</label>
-                            <input type="text" class="form-control bg-light border-0 py-2" name="specialization" th:value="${user.lecturer?.specialization}">
+
+                        <div class="row g-4">
+
+                            <!-- Học vị -->
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                    <i class="fas fa-graduation-cap me-1 text-primary"></i>
+                                    Học vị
+                                </label>
+
+                                <input type="text"
+                                       name="degree"
+                                       class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                       th:value="${lecturer?.degree}"
+                                       placeholder="Ví dụ: Tiến sĩ">
+                            </div>
+
+                            <!-- Chuyên môn -->
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                    <i class="fas fa-book-open me-1 text-primary"></i>
+                                    Chuyên môn
+                                </label>
+
+                                <input type="text"
+                                       name="specialization"
+                                       class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                       th:value="${lecturer?.specialization}"
+                                       placeholder="Ví dụ: Công nghệ phần mềm">
+                            </div>
+
+                            <!-- Kinh nghiệm -->
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                    <i class="fas fa-briefcase me-1 text-primary"></i>
+                                    Số năm kinh nghiệm
+                                </label>
+
+                                <input type="number"
+                                       name="experienceYears"
+                                       min="0"
+                                       class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
+                                       th:value="${lecturer?.experienceYears}"
+                                       placeholder="0">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold rounded-3 shadow-sm">
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top">
+                        <button type="submit"
+                                class="btn btn-primary px-5 py-3 rounded-3 fw-bold shadow-sm">
+                            <i class="fas fa-save me-2"></i>
                             Cập nhật hồ sơ
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>

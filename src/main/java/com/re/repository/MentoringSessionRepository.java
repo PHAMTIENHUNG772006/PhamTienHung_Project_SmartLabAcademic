@@ -35,6 +35,4 @@ public interface MentoringSessionRepository extends JpaRepository<MentoringSessi
             @Param("endTime") LocalDateTime endTime
     );
 
-    Optional<MentoringSession> findById(Long id);
-
 }

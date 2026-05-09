@@ -41,18 +41,6 @@
                             <textarea th:field="*{feedback}" class="form-control" rows="3" placeholder="Nhập nhận xét cho sinh viên..."></textarea>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Thiết bị cấp phát (Nếu có)</label>
-                            <select name="equipmentId" class="form-select">
-                                <option value="">-- Không sử dụng thiết bị --</option>
-                                <th:block th:if="${equipments != null}">
-                                    <option th:each="equi : ${equipments}"
-                                            th:value="${equi.id}"
-                                            th:text="${equi.name + ' (Còn: ' + equi.availableQuantity + ')'}"></option>
-                                </th:block>
-                            </select>
-                        </div>
-
                         <div class="d-flex justify-content-between">
                             <a th:href="@{/lecturer/appointments}" class="btn btn-light px-4">Quay lại</a>
                             <button type="submit" class="btn btn-primary px-5 rounded-pill">Hoàn tất & Lưu</button>

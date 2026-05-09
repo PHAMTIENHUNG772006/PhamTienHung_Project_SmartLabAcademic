@@ -1,6 +1,7 @@
 package com.re.service;
 
 import com.re.model.entity.Lab;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;

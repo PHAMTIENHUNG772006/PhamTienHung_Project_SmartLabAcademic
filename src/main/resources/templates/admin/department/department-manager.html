@@ -142,7 +142,42 @@
                     </td>
                 </tr>
                 </tbody>
+
+
             </table>
+
+            <nav>
+                <ul class="pagination justify-content-center">
+
+                    <!-- Previous -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/departments(page=${currentPage - 1}) }">
+                            Previous
+                        </a>
+                    </li>
+
+                    <!-- Page numbers -->
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == totalItems} ? 'active'">
+
+                        <a class="page-link"
+                           th:text="${i + 1}"
+                           th:href="@{/admin/departments(page=${i})}">
+                        </a>
+                    </li>
+
+                    <!-- Next -->
+                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/departments(page=${currentPage + 1})}">
+                            Next
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
         </div>
     </div>
 </div>

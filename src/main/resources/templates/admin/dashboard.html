@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/main-layout :: main-layout(~{::#admin-dashboard}, 'Quản trị - SmartAcademic', 'dashboard')}">
+<head>
+    <meta charset="UTF-8">
+</head>
 <body>
 
 <div id="admin-dashboard">
@@ -11,57 +14,70 @@
 
     <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="stat-card d-flex align-items-center justify-content-between">
+            <div class="stat-card d-flex align-items-center justify-content-between p-4 shadow-sm border-0 rounded-3 bg-white">
                 <div>
-                    <small class="text-secondary fw-bold">Tổng thiết bị</small>
-                    <h3 class="fw-bold mb-0">198</h3>
+                    <small class="text-secondary fw-bold text-uppercase" style="font-size: 0.75rem;">Tổng thiết bị</small>
+                    <h3 class="fw-bold mb-0" th:text="${totalEquiment}">0</h3>
                 </div>
-                <div class="icon-box bg-primary-subtle text-primary"><i class="fas fa-box"></i></div>
+                <div class="icon-box bg-primary-subtle text-primary p-3 rounded-3">
+                    <i class="fas fa-box fa-lg"></i>
+                </div>
             </div>
         </div>
+
         <div class="col-md-3">
-            <div class="stat-card d-flex align-items-center justify-content-between">
+            <div class="stat-card d-flex align-items-center justify-content-between p-4 shadow-sm border-0 rounded-3 bg-white">
                 <div>
-                    <small class="text-secondary fw-bold">Đang cho mượn</small>
-                    <h3 class="fw-bold mb-0">53</h3>
+                    <small class="text-secondary fw-bold text-uppercase" style="font-size: 0.75rem;">Đang cho mượn</small>
+                    <h3 class="fw-bold mb-0" th:text="${currentBorrowing}">0</h3>
                 </div>
-                <div class="icon-box bg-warning-subtle text-warning"><i class="fas fa-chart-line"></i></div>
+                <div class="icon-box bg-warning-subtle text-warning p-3 rounded-3">
+                    <i class="fas fa-hand-holding-heart fa-lg"></i>
+                </div>
             </div>
         </div>
+
         <div class="col-md-3">
-            <div class="stat-card d-flex align-items-center justify-content-between">
+            <div class="stat-card d-flex align-items-center justify-content-between p-4 shadow-sm border-0 rounded-3 bg-white">
                 <div>
-                    <small class="text-secondary fw-bold">Chờ cấp phát</small>
-                    <h3 class="fw-bold mb-0" th:text="${pendingRequests ?: 1}">1</h3>
+                    <small class="text-secondary fw-bold text-uppercase" style="font-size: 0.75rem;">Chờ cấp phát</small>
+                    <h3 class="fw-bold mb-0" th:text="${awaitingDelivery}">0</h3>
                 </div>
-                <div class="icon-box bg-info-subtle text-info"><i class="fas fa-clock"></i></div>
+                <div class="icon-box bg-info-subtle text-info p-3 rounded-3">
+                    <i class="fas fa-clock fa-lg"></i>
+                </div>
             </div>
         </div>
+
         <div class="col-md-3">
-            <div class="stat-card d-flex align-items-center justify-content-between">
+            <div class="stat-card d-flex align-items-center justify-content-between p-4 shadow-sm border-0 rounded-3 bg-white">
                 <div>
-                    <small class="text-secondary fw-bold">Buổi tư vấn</small>
-                    <h3 class="fw-bold mb-0">2</h3>
+                    <small class="text-secondary fw-bold text-uppercase" style="font-size: 0.75rem;">Buổi tư vấn</small>
+                    <h3 class="fw-bold mb-0" th:text="${totalSession}">0</h3>
                 </div>
-                <div class="icon-box bg-success-subtle text-success"><i class="fas fa-user-check"></i></div>
+                <div class="icon-box bg-success-subtle text-success p-3 rounded-3">
+                    <i class="fas fa-calendar-check fa-lg"></i>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
         <div class="col-lg-7">
-            <div class="stat-card">
+            <div class="stat-card p-4 shadow-sm border-0 rounded-3 bg-white">
                 <h5 class="fw-bold mb-4">Top Giảng viên tư vấn nhiều nhất</h5>
-                <div class="lecturer-item d-flex align-items-center justify-content-between">
+                <div class="lecturer-item d-flex align-items-center justify-content-between mb-3">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="badge bg-light text-dark rounded-circle p-2">1</span>
+                        <span class="badge bg-light text-dark rounded-circle p-2" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">1</span>
                         <div>
                             <div class="fw-bold">PGS. Trần Văn Khoa</div>
                             <small class="text-secondary">Khoa học Máy tính</small>
                         </div>
                     </div>
                     <div class="w-25 text-end">
-                        <div class="progress mb-1"><div class="progress-bar" style="width: 85%"></div></div>
+                        <div class="progress mb-1" style="height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"></div>
+                        </div>
                         <small class="fw-bold">51 buổi</small>
                     </div>
                 </div>
@@ -69,14 +85,35 @@
         </div>
 
         <div class="col-lg-5">
-            <div class="stat-card h-100">
+            <div class="stat-card h-100 p-4 shadow-sm border-0 rounded-3 bg-white">
                 <div class="d-flex justify-content-between mb-4">
                     <h5 class="fw-bold">Thiết bị sắp hết kho</h5>
-                    <a href="#" class="text-primary text-decoration-none small">Quản lý ></a>
+                    <a th:href="@{/admin/equipment}" class="text-primary text-decoration-none small fw-bold">Quản lý ></a>
                 </div>
-                <div class="text-center py-5">
-                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" style="width: 80px; opacity: 0.2;" class="mb-3">
+
+                <div th:if="${#lists.isEmpty(lowStockEquipments)}" class="text-center py-5">
+                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png"
+                         style="width: 80px; opacity: 0.2;" class="mb-3" alt="Empty box">
                     <p class="text-secondary">Tất cả thiết bị đủ kho</p>
+                </div>
+
+                <div th:if="${not #lists.isEmpty(lowStockEquipments)}" class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Tên thiết bị</th>
+                            <th class="text-center">Còn lại</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="equi : ${lowStockEquipments}">
+                            <td th:text="${equi.name}" class="fw-medium"></td>
+                            <td class="text-center">
+                                <span class="badge bg-danger rounded-pill" th:text="${equi.availableQuantity}">0</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

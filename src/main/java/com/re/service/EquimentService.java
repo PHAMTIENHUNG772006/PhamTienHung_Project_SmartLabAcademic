@@ -4,6 +4,7 @@ import com.re.model.entity.Equipment;
 
 import java.util.List;
 
+
 public interface EquimentService {
     List<Equipment> findAll();
     Equipment save(Equipment equipment);

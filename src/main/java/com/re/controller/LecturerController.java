@@ -46,55 +46,7 @@ public class LecturerController {
         return "lecturer/dashboard";
     }
 
-    @GetMapping("/profile")
-    public String profile(HttpSession session, Model model) {
-        User userDb = getUserFromDb(session);
-        if (userDb == null) return "redirect:/auth/login";
 
-        model.addAttribute("user", userDb);
-        model.addAttribute("profile", userDb.getProfile() != null ? userDb.getProfile() : new UserProfile());
-        model.addAttribute("lecturer", userDb.getLecturer() != null ? userDb.getLecturer() : new Lecturer());
-        model.addAttribute("lecturerName", userDb.getFullName());
-        return "conmon/profile";
-    }
-
-    @PostMapping("/profile/update")
-    public String updateProfile(@ModelAttribute Lecturer lecturerData,
-                                @ModelAttribute UserProfile profileData,
-                                @RequestParam String fullName,
-                                HttpSession session) {
-        User userDb = getUserFromDb(session);
-        if (userDb == null) return "redirect:/auth/login";
-
-        userDb.setFullName(fullName);
-
-        // Cập nhật Profile
-        UserProfile currentProfile = userDb.getProfile();
-        if (currentProfile == null) {
-            currentProfile = new UserProfile();
-            currentProfile.setUser(userDb);
-            userDb.setProfile(currentProfile);
-        }
-        currentProfile.setPhone(profileData.getPhone());
-        currentProfile.setAddress(profileData.getAddress());
-        currentProfile.setDateOfBirth(profileData.getDateOfBirth());
-        currentProfile.setGender(profileData.getGender());
-
-        // Cập nhật thông tin Giảng viên
-        Lecturer currentLecturer = userDb.getLecturer();
-        if (currentLecturer == null) {
-            currentLecturer = new Lecturer();
-            currentLecturer.setUser(userDb);
-            userDb.setLecturer(currentLecturer);
-        }
-        currentLecturer.setSpecialization(lecturerData.getSpecialization());
-        currentLecturer.setDegree(lecturerData.getDegree());
-        currentLecturer.setExperienceYears(lecturerData.getExperienceYears());
-
-        userService.save(userDb);
-        session.setAttribute("user", userDb);
-        return "redirect:/lecturer/profile?success";
-    }
 
     /* ================== 2. QUẢN LÝ LỊCH HẸN (APPOINTMENTS) ================== */
 

@@ -38,6 +38,12 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
     @Autowired
     private BorrowingDetailRepository borrowingDetailRepository;
 
+
+    @Override
+    public List<MentoringSession> findAll() {
+        return sessionRepository.findAll();
+    }
+
     @Override
     @Transactional
     public void createBookingRequest(BookingProcessDTO dto, User student) {
@@ -98,12 +104,11 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
         session.setLab(lab);
         session.setNote(note);
 
-        if (equipmentId != null) {
+        Equipment equipment = equipmentRepository.findById(equipmentId).orElse(null);
+
+        if (equipment != null) {
 
             session.setStatus(SessionStatus.AWAITING_EQUIPMENT);
-
-            Equipment eq = equipmentRepository.findById(equipmentId).get();
-
 
             BorrowingRecord record = BorrowingRecord.builder()
                     .session(session)
@@ -113,12 +118,13 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
 
             BorrowingDetail detail = BorrowingDetail.builder()
                     .borrowingRecord(record)
-                    .equipment(eq)
+                    .equipment(equipment)
                     .quantity(1)
                     .build();
+            equipment.setAvailableQuantity(equipment.getAvailableQuantity() - 1);
+            equipmentRepository.save(equipment);
             borrowingDetailRepository.save(detail);
         } else {
-
             session.setStatus(SessionStatus.APPROVED);
         }
         sessionRepository.save(session);
@@ -130,44 +136,39 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
         MentoringSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy ca tư vấn ID: " + sessionId));
 
+        // Chỉ hoàn tất khi đã được duyệt
         if (session.getStatus() != SessionStatus.APPROVED) {
-            throw new RuntimeException("Chỉ có thể hoàn thành ca tư vấn đã được duyệt phiếu thiết bị!");
+            throw new RuntimeException("Chỉ có thể hoàn thành ca tư vấn đã được duyệt!");
         }
 
+        // 1. Cập nhật trạng thái Session
         session.setStatus(SessionStatus.COMPLETED);
         sessionRepository.save(session);
 
-        // Lưu đánh giá
+        // 2. Lưu đánh giá
         evaluationData.setSession(session);
         evaluationData.setCreatedAt(LocalDateTime.now());
         evaluationData.setStatus(true);
         evaluationRepository.save(evaluationData);
 
-        // Xử lý mượn thiết bị (nếu có)
-        if (equipmentId != null) {
-            Equipment equipment = equipmentRepository.findById(equipmentId)
-                    .orElseThrow(() -> new RuntimeException("Thiết bị không tồn tại"));
+        // 3. Logic trả thiết bị quan trọng:
+        // Tìm phiếu mượn của Session này để hoàn trả số lượng
+        Optional<BorrowingRecord> recordOpt = borrowingRecordRepository.findBySession_Id(sessionId)
+                .stream()
+                .filter(r -> r.getStatus() == BorrowingStatus.BORROWED || r.getStatus() == BorrowingStatus.PENDING)
+                .findFirst();
 
-            if (equipment.getAvailableQuantity() <= 0) {
-                throw new RuntimeException("Thiết bị '" + equipment.getName() + "' đã hết số lượng khả dụng");
+        if (recordOpt.isPresent()) {
+            BorrowingRecord record = recordOpt.get();
+            record.setStatus(BorrowingStatus.RETURNED);
+
+            // Cộng trả lại số lượng vào kho
+            for (BorrowingDetail detail : record.getDetails()) {
+                Equipment equipment = detail.getEquipment();
+                equipment.setAvailableQuantity(equipment.getAvailableQuantity() + detail.getQuantity());
+                equipmentRepository.save(equipment);
             }
-
-            BorrowingRecord record = BorrowingRecord.builder()
-                    .borrowedAt(LocalDateTime.now())
-                    .status(BorrowingStatus.BORROWED)
-                    .session(session)
-                    .build();
             borrowingRecordRepository.save(record);
-
-            BorrowingDetail detail = BorrowingDetail.builder()
-                    .borrowingRecord(record)
-                    .equipment(equipment)
-                    .quantity(1)
-                    .build();
-            borrowingDetailRepository.save(detail);
-
-            equipment.setAvailableQuantity(equipment.getAvailableQuantity() - 1);
-            equipmentRepository.save(equipment);
         }
     }
 

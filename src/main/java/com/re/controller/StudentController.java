@@ -53,48 +53,7 @@ public class StudentController {
         return "student/dashboard";
     }
 
-    @GetMapping("/profile")
-    public String profile(HttpSession session, Model model) {
-        User userSession = (User) session.getAttribute("user");
-        if (userSession == null) return "redirect:/auth/login";
 
-        User userDb = userService.findByEmail(userSession.getEmail());
-
-        model.addAttribute("user", userDb);
-        // FIX LỖI: Luôn new UserProfile nếu null để tránh lỗi giao diện
-        model.addAttribute("profile", userDb.getProfile() != null ? userDb.getProfile() : new UserProfile());
-        model.addAttribute("studentName", userDb.getFullName());
-
-        return "conmon/profile";
-    }
-
-    @PostMapping("/profile/update")
-    public String updateProfile(HttpSession session,
-                                @ModelAttribute UserProfile profileData,
-                                @RequestParam String fullName) {
-        User userSession = (User) session.getAttribute("user");
-        if (userSession == null) return "redirect:/auth/login";
-
-        User userDb = userService.findByEmail(userSession.getEmail());
-        userDb.setFullName(fullName);
-
-        UserProfile currentProfile = userDb.getProfile();
-        if (currentProfile == null) {
-            currentProfile = new UserProfile();
-            currentProfile.setUser(userDb);
-            userDb.setProfile(currentProfile);
-        }
-
-        currentProfile.setPhone(profileData.getPhone());
-        currentProfile.setAddress(profileData.getAddress());
-        currentProfile.setDateOfBirth(profileData.getDateOfBirth());
-        currentProfile.setGender(profileData.getGender());
-
-        userService.save(userDb);
-        session.setAttribute("user", userDb);
-
-        return "redirect:/student/profile?success";
-    }
 
 
     @GetMapping("/booking")

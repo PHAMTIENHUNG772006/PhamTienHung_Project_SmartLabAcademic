@@ -11,6 +11,9 @@ import com.re.service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -42,55 +46,39 @@ public class AdminController {
     @Autowired
     private BorrowwingRecordService borrowingService;
 
+    @Autowired
+    private MentoringSessionService mentoringSessionService;
+
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("currentMenu", "dashboard");
-        model.addAttribute("title", "Bảng điều khiển Admin");
+        List<BorrowingRecord> records = borrowingService.findAll();
+        List<MentoringSession> sessions = mentoringSessionService.findAll();
+        List<Equipment> equipments = equimentService.findAll();
+
+
+        long currentBorrowing = records.stream()
+                .filter(r -> r.getStatus() == BorrowingStatus.BORROWED)
+                .count();
+
+
+        long awaitingDelivery = records.stream()
+                .filter(r -> r.getStatus() == BorrowingStatus.PENDING)
+                .count();
+
+        List<Equipment> lowStockEquipments = equipments.stream()
+                .filter(e -> e.getAvailableQuantity() < 10)
+                .collect(Collectors.toList());
+
+        model.addAttribute("totalEquiment", equipments.size());
+        model.addAttribute("currentBorrowing", currentBorrowing);
+        model.addAttribute("awaitingDelivery", awaitingDelivery);
+        model.addAttribute("totalSession", sessions.size());
+        model.addAttribute("lowStockEquipments", lowStockEquipments);
+
         return "admin/dashboard";
     }
 
-    @GetMapping("/profile")
-    public String profile(HttpSession session, Model model) {
-        User userSession = (User) session.getAttribute("user");
-        if (userSession == null) return "redirect:/auth/login";
-
-        User userDb = userService.findByEmail(userSession.getEmail());
-
-        model.addAttribute("user", userDb);
-        model.addAttribute("profile", userDb.getProfile() != null ? userDb.getProfile() : new UserProfile());
-        model.addAttribute("adminName", userDb.getFullName());
-
-        return "conmon/profile";
-    }
-
-    @PostMapping("/profile/update")
-    public String updateProfile(HttpSession session,
-                                @ModelAttribute UserProfile profileData,
-                                @RequestParam String fullName) {
-        User userSession = (User) session.getAttribute("user");
-        if (userSession == null) return "redirect:/auth/login";
-
-        User userDb = userService.findByEmail(userSession.getEmail());
-        userDb.setFullName(fullName);
-
-        UserProfile currentProfile = userDb.getProfile();
-        if (currentProfile == null) {
-            currentProfile = new UserProfile();
-            currentProfile.setUser(userDb);
-            userDb.setProfile(currentProfile);
-        }
-
-        currentProfile.setPhone(profileData.getPhone());
-        currentProfile.setAddress(profileData.getAddress());
-        currentProfile.setDateOfBirth(profileData.getDateOfBirth());
-        currentProfile.setGender(profileData.getGender());
-
-        userService.save(userDb);
-        session.setAttribute("user", userDb);
-
-        return "redirect:/admin/profile?success";
-    }
 
     @GetMapping("/equipments")
     public String equipment(Model model){
@@ -178,21 +166,32 @@ public class AdminController {
 
 
     @GetMapping("/departments")
-    public String departments(Model model){
+    public String departments(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int itemPerpage,Model model){
 
-       List<Department> departments = departmentService.findAll();
+        Pageable pageable = PageRequest.of(page,itemPerpage);
 
-       model.addAttribute("departments", departments);
+       Page<Department> departmentPage = departmentService.findAll(pageable);
+
+        model.addAttribute("departments", departmentPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", departmentPage.getTotalPages());
+        model.addAttribute("totalItems", departmentPage.getTotalElements());
 
         return "admin/department/department-manager";
     }
 
     @GetMapping("/users")
-    public String users(Model model){
+    public String users(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int itemPerpage,Model model){
 
-        List<User> users = userServices.findAll();
+        Pageable pageable = PageRequest.of(page, itemPerpage);
 
-        model.addAttribute("users", users);
+        Page<User> users = userServices.findAll(pageable);
+
+        model.addAttribute("users", users.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", users.getTotalPages());
+        model.addAttribute("totalItems", users.getTotalElements());
+
 
         return "admin/user/user-manager";
     }
@@ -234,8 +233,7 @@ public class AdminController {
     public String list(Model model) {
         List<BorrowingRecord> records = borrowingService.findAll();
         model.addAttribute("borrowingRecords", records);
-        model.addAttribute("pendingCount", records.stream()
-                .filter(r -> r.getStatus() == BorrowingStatus.PENDING).count());
+        model.addAttribute("pendingCount", borrowingService.countBorrowingRecordByStatus(BorrowingStatus.PENDING));
         return "admin/equipment/approved-equipment";
     }
 

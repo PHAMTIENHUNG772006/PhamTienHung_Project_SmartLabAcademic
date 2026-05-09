@@ -36,13 +36,16 @@ public class BorrowingRecordServiceImpl implements BorrowwingRecordService {
         BorrowingRecord record = borrowingRecordRepository.findById(borrowingId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phiếu mượn"));
 
-        // 1. Cập nhật phiếu mượn
+        if (record.getStatus() != BorrowingStatus.PENDING) {
+            throw new RuntimeException("Phiếu này không ở trạng thái chờ xác nhận");
+        }
+
         record.setStatus(BorrowingStatus.BORROWED);
         record.setBorrowedAt(LocalDateTime.now());
 
-        // 2. Cập nhật Session tương ứng để Giảng viên có thể "Hoàn tất"
         MentoringSession session = record.getSession();
         if (session != null) {
+
             session.setStatus(SessionStatus.APPROVED);
             sessionRepository.save(session);
         }
@@ -97,5 +100,13 @@ public class BorrowingRecordServiceImpl implements BorrowwingRecordService {
     @Override
     public List<BorrowingRecord> findAll() {
         return borrowingRecordRepository.findAll();
+    }
+
+    @Override
+    public Integer countBorrowingRecordByStatus(BorrowingStatus status) {
+        if (status != null) {
+            return borrowingRecordRepository.countBorrowingRecordByStatus(status);
+        }
+        return 0;
     }
 }

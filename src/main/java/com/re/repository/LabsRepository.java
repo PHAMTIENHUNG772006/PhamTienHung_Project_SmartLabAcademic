@@ -9,6 +9,5 @@ import java.util.Optional;
 
 public interface LabsRepository extends JpaRepository<Lab,Long> {
     List<Lab> findLabByName(String name);
-    Optional<Lab> findById(Long id);
-    List<Lab> findAll();
+
 }

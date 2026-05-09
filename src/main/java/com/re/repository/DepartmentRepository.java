@@ -9,6 +9,4 @@ import java.util.Optional;
 public interface DepartmentRepository extends JpaRepository<Department,Long> {
     List<Department> findDepartmentByName(String name);
     List<Department> findDepartmentById(Long id);
-    Optional<Department> findById(Long id);
-    List<Department> findAll();
 }

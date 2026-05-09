@@ -5,6 +5,7 @@ import com.re.model.entity.AcademicEvaluation;
 import com.re.model.entity.MentoringSession;
 import com.re.model.entity.User;
 import com.re.model.enums.SessionStatus;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +29,6 @@ public interface MentoringSessionService {
     void rejectSession(Long sessionId);
 
     List<MentoringSession> getActiveSessionsForLecturer(Long lecturerId);
+
+    List<MentoringSession> findAll();
 }
