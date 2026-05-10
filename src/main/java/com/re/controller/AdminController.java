@@ -2,13 +2,12 @@ package com.re.controller;
 
 
 import com.re.model.dto.EquipmentDTO;
-import com.re.model.dto.UserDTO;
 import com.re.model.dto.UserRequestDTO;
 import com.re.model.entity.*;
 import com.re.model.enums.BorrowingStatus;
 import com.re.model.enums.Role;
+import com.re.repository.LecturerTopConsulting;
 import com.re.service.*;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,10 +43,13 @@ public class AdminController {
     private UserService userServices;
 
     @Autowired
-    private BorrowwingRecordService borrowingService;
+    private BorrowingRecordService borrowingService;
 
     @Autowired
     private MentoringSessionService mentoringSessionService;
+
+    @Autowired
+    private LecturerService lecturerService;
 
 
     @GetMapping("/dashboard")
@@ -56,6 +58,13 @@ public class AdminController {
         List<MentoringSession> sessions = mentoringSessionService.findAll();
         List<Equipment> equipments = equimentService.findAll();
 
+        LecturerTopConsulting topLecturerData = lecturerService.getMostActiveLecturer();
+
+        if (topLecturerData != null) {
+            model.addAttribute("topLecturer", topLecturerData.getLecturer().getUser().getFullName());
+            model.addAttribute("department",topLecturerData.getLecturer().getDepartment().getName());
+            model.addAttribute("topLecturerCount", topLecturerData.getSessionCount());
+        }
 
         long currentBorrowing = records.stream()
                 .filter(r -> r.getStatus() == BorrowingStatus.BORROWED)
@@ -70,7 +79,7 @@ public class AdminController {
                 .filter(e -> e.getAvailableQuantity() < 10)
                 .collect(Collectors.toList());
 
-        model.addAttribute("totalEquiment", equipments.size());
+        model.addAttribute("totalEquipment", equipments.size());
         model.addAttribute("currentBorrowing", currentBorrowing);
         model.addAttribute("awaitingDelivery", awaitingDelivery);
         model.addAttribute("totalSession", sessions.size());
@@ -81,10 +90,16 @@ public class AdminController {
 
 
     @GetMapping("/equipments")
-    public String equipment(Model model){
+    public String equipment(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int itemPerpage, Model model){
 
-        List<Equipment> equipments = equimentService.findAll();
+        Pageable pageable = PageRequest.of(page, itemPerpage);
 
+
+        Page<Equipment> equipments = equimentService.findAll(pageable);
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", equipments.getTotalPages());
+        model.addAttribute("totalItems", equipments.getTotalElements());
         model.addAttribute("equipments", equipments);
 
         return "admin/equipment/equipment-manager";
@@ -104,6 +119,9 @@ public class AdminController {
 
     @GetMapping("/equipments/add")
     public String add(Model model){
+
+
+
 
         model.addAttribute("equipment", new Equipment());
 
@@ -155,10 +173,15 @@ public class AdminController {
     }
 
     @GetMapping("/labs")
-    public String labs(Model model){
+    public String labs(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int itemPerpage, Model model){
 
-        List<Lab> labs = labService.findAll();
+        Pageable pageable = PageRequest.of(page, itemPerpage);
 
+        Page<Lab> labs = labService.findAll(pageable);
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", labs.getTotalPages());
+        model.addAttribute("totalItems", labs.getTotalElements());
         model.addAttribute("labs", labs);
 
         return "admin/lab/labs-manager";
@@ -230,8 +253,13 @@ public class AdminController {
 
     // Duyệt đơn mượn thiết bị - Màn hình danh sách
     @GetMapping("/equipments/borrowing")
-    public String list(Model model) {
-        List<BorrowingRecord> records = borrowingService.findAll();
+    public String list(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int itemPerpage, Model model) {
+        Pageable pageable = PageRequest.of(page, itemPerpage);
+
+        Page<BorrowingRecord> records = borrowingService.findAll(pageable);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", records.getTotalPages());
+        model.addAttribute("totalItems", records.getTotalElements());
         model.addAttribute("borrowingRecords", records);
         model.addAttribute("pendingCount", borrowingService.countBorrowingRecordByStatus(BorrowingStatus.PENDING));
         return "admin/equipment/approved-equipment";

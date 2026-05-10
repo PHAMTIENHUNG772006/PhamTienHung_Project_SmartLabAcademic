@@ -2,8 +2,11 @@ package com.re.service.impl;
 
 import com.re.model.entity.Lecturer;
 import com.re.repository.LecturerRepository;
+import com.re.repository.LecturerTopConsulting;
 import com.re.service.LecturerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,5 +41,12 @@ public class LecturerServiceImpl implements LecturerService {
     @Override
     public Lecturer save(Lecturer lecturer) {
         return lecturerRepository.save(lecturer);
+    }
+
+    @Override
+    public LecturerTopConsulting getMostActiveLecturer() {
+        Pageable topOne = PageRequest.of(0, 1);
+        List<LecturerTopConsulting> results = lecturerRepository.findTopLecturerBySessions(topOne);
+        return results.isEmpty() ? null : results.get(0);
     }
 }

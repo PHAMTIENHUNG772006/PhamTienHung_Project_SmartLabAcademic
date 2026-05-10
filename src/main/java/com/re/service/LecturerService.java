@@ -1,6 +1,7 @@
 package com.re.service;
 
 import com.re.model.entity.Lecturer;
+import com.re.repository.LecturerTopConsulting;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface LecturerService {
     List<Lecturer> findLecturerByDepartmentId(Long departmentId);
 
     Lecturer save(Lecturer lecturer);
+
+    LecturerTopConsulting getMostActiveLecturer();
 }

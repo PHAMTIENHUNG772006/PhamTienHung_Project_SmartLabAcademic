@@ -12,6 +12,15 @@
             padding: 20px; transition: all 0.3s ease; height: 100%;
             display: block; background: white;
         }
+
+        .fade-out-auto {
+            animation: fadeOut 0.5s ease-out 1s forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); visibility: hidden; }
+        }
         .booking-card:hover {
             transform: translateY(-4px); border-color: #4361ee;
             box-shadow: 0 10px 20px rgba(67, 97, 238, 0.1);
@@ -54,7 +63,7 @@
         <p class="text-muted">Hoàn thành các bước dưới đây để đặt lịch với giảng viên</p>
     </div>
 
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+    <div th:if="${error}" class="alert alert-danger fade-out-auto alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
         <div class="d-flex align-items-center">
             <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
             <div>

@@ -1,6 +1,7 @@
 package com.re.controller;
 
 import com.re.model.entity.*;
+import com.re.model.enums.LabStatus;
 import com.re.model.enums.SessionStatus;
 import com.re.repository.LabsRepository;
 import com.re.service.*;
@@ -22,7 +23,7 @@ public class LecturerController {
     @Autowired
     private EquimentService equimentService;
     @Autowired
-    private LabsRepository labRepository;
+    private LabService labService;
     @Autowired
     private LecturerService lecturerService;
     @Autowired
@@ -73,7 +74,7 @@ public class LecturerController {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy ca tư vấn id: " + id));
 
         model.addAttribute("mentoringSession", session);
-        model.addAttribute("labs", labRepository.findAll());
+        model.addAttribute("labs",labService.findLabByStatus(LabStatus.AVAILABLE) );
         model.addAttribute("equipments", equimentService.findAll());
         return "lecturer/approve-session";
     }

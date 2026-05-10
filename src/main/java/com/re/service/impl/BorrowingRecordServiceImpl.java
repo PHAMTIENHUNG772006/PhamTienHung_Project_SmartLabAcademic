@@ -9,9 +9,11 @@ import com.re.model.enums.SessionStatus;
 import com.re.repository.BorrowingRecordRepository;
 import com.re.repository.EquipmentRepository;
 import com.re.repository.MentoringSessionRepository;
-import com.re.service.BorrowwingRecordService;
+import com.re.service.BorrowingRecordService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class BorrowingRecordServiceImpl implements BorrowwingRecordService {
+public class BorrowingRecordServiceImpl implements BorrowingRecordService {
 
     @Autowired
     private BorrowingRecordRepository borrowingRecordRepository;
@@ -100,6 +102,11 @@ public class BorrowingRecordServiceImpl implements BorrowwingRecordService {
     @Override
     public List<BorrowingRecord> findAll() {
         return borrowingRecordRepository.findAll();
+    }
+
+    @Override
+    public Page<BorrowingRecord> findAll(Pageable pageable) {
+        return borrowingRecordRepository.findAll(pageable);
     }
 
     @Override

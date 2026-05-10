@@ -1,9 +1,12 @@
 package com.re.service.impl;
 
 import com.re.model.entity.Lab;
+import com.re.model.enums.LabStatus;
 import com.re.repository.LabsRepository;
 import com.re.service.LabService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +25,13 @@ public class LabServiceImpl implements LabService {
     }
 
     @Override
-    public List<Lab> findLabByName(String name) {
-        return labRepository.findLabByName(name);
+    public Page<Lab> findAll(Pageable pageable) {
+        return labRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<Lab> findLabByStatus(LabStatus status) {
+        return labRepository.findLabByStatus(status);
     }
 
     @Override

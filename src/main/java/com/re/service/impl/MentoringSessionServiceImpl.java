@@ -38,6 +38,9 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
     @Autowired
     private BorrowingDetailRepository borrowingDetailRepository;
 
+    @Autowired
+    private BorrowingRecordServiceImpl borrowingRecordService;
+
 
     @Override
     public List<MentoringSession> findAll() {
@@ -151,7 +154,7 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
         evaluationData.setStatus(true);
         evaluationRepository.save(evaluationData);
 
-        // 3. Logic trả thiết bị quan trọng:
+        // 3. Logic trả thiết bị :
         // Tìm phiếu mượn của Session này để hoàn trả số lượng
         Optional<BorrowingRecord> recordOpt = borrowingRecordRepository.findBySession_Id(sessionId)
                 .stream()
@@ -160,14 +163,7 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
 
         if (recordOpt.isPresent()) {
             BorrowingRecord record = recordOpt.get();
-            record.setStatus(BorrowingStatus.RETURNED);
-
-            // Cộng trả lại số lượng vào kho
-            for (BorrowingDetail detail : record.getDetails()) {
-                Equipment equipment = detail.getEquipment();
-                equipment.setAvailableQuantity(equipment.getAvailableQuantity() + detail.getQuantity());
-                equipmentRepository.save(equipment);
-            }
+            borrowingRecordService.returnEquipment(record.getId());
             borrowingRecordRepository.save(record);
         }
     }

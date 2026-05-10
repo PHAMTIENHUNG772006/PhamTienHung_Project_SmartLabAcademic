@@ -4,6 +4,8 @@ import com.re.model.entity.Equipment;
 import com.re.repository.EquipmentRepository;
 import com.re.service.EquimentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,10 @@ public class EquimentServiceImpl implements EquimentService {
         return equipmentRepository.findAll();
     }
 
+    @Override
+    public Page<Equipment> findAll(Pageable pageable){
+        return equipmentRepository.findAll(pageable);
+    }
     @Override
     public Equipment save(Equipment equipment) {
         return equipmentRepository.save(equipment);
