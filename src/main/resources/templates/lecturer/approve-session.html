@@ -36,7 +36,7 @@
 
                             <div class="mb-3">
                                 <label for="labId" class="form-label fw-bold text-primary">Chỉ định phòng Lab <span class="text-danger">*</span></label>
-                                <select name="labId" id="labId" class="form-select form-select-lg" required>
+                                <select name="labId" id="labId" class="form-select form-select-lg">
                                     <option value="" selected disabled>-- Chọn phòng Lab còn trống --</option>
                                     <option th:each="lab : ${labs}"
                                             th:value="${lab.id}"
@@ -47,7 +47,7 @@
                             <!-- Thêm vào bên dưới phần chọn Lab -->
                             <div class="mb-3">
                                 <label for="equipmentId" class="form-label fw-bold text-primary">Yêu cầu thiết bị hỗ trợ (Nếu cần)</label>
-                                <select name="equipmentId" id="equipmentId" class="form-select">
+                                <select name="equipmentId" id="equipmentId" class="form-select" multiple size="5" >
                                     <option value="">-- Không cần thiết bị --</option>
                                     <option th:each="equi : ${equipments}"
                                             th:value="${equi.id}"

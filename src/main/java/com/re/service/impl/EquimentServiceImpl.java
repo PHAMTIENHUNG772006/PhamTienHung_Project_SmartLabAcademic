@@ -40,11 +40,7 @@ public class EquimentServiceImpl implements EquimentService {
         return equipmentRepository.findById(id).orElse(null);
     }
 
-    @Override
-    public Equipment update(Equipment equipment) {
-        return null;
-    }
-
+ 
     @Override
     public void delete(Long id) {
 

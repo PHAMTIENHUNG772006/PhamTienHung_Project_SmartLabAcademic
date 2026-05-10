@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main-layout :: main-layout(~{::#detail-content}, 'Chi tiết kết quả học thuật', 'history')}">
+<body>
+
+<div id="detail-content" class="container py-4">
+    <!-- Breadcrumb -->
+    <div class="mb-4">
+        <a th:href="@{/student/history}" class="btn btn-link text-decoration-none text-muted p-0">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách hồ sơ
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center">
+                <div class="avatar-circle mx-auto bg-primary text-white mb-3 d-flex align-items-center justify-content-center shadow"
+                     style="width: 70px; height: 70px; font-size: 1.8rem; border-radius: 50%;"
+                     th:text="${#strings.substring(item.lecturer.user.fullName, 0, 1)}"></div>
+
+                <h5 class="fw-bold mb-1" th:text="${item.lecturer.user.fullName}"></h5>
+                <p class="text-muted small mb-3" th:text="${item.lecturer.specialization}"></p>
+
+                <hr class="opacity-10">
+
+                <div class="text-start">
+                    <label class="small text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">Chủ đề tư vấn</label>
+                    <p class="fw-bold text-dark mb-3" th:text="${item.topic}"></p>
+
+                    <label class="small text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">Thời gian & Địa điểm</label>
+                    <div class="mb-1"><i class="far fa-calendar-alt me-2 text-primary"></i> <span th:text="${#temporals.format(item.startTime, 'dd/MM/yyyy HH:mm')}"></span></div>
+                    <div><i class="fas fa-map-marker-alt me-2 text-danger"></i> <span th:text="${item.lab != null ? item.lab.name : 'Chưa chỉ định'}"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Result Content -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="bg-primary p-4 text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-award me-2"></i>KẾT QUẢ ĐÁNH GIÁ</h5>
+                    <span class="badge bg-white text-primary rounded-pill px-3" th:text="${#temporals.format(item.academicEvaluation.createdAt, 'dd/MM/yyyy')}"></span>
+                </div>
+
+                <div class="p-4">
+                    <!-- Score Banner -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 text-center">
+                            <div class="p-3 bg-light rounded-4 border">
+                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Xếp loại</small>
+                                <h3 class="fw-bold text-primary mb-0" th:text="${item.academicEvaluation.result}">ĐẠT</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="p-3 bg-primary text-white rounded-4 shadow">
+                                <small class="text-white-50 d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Điểm số</small>
+                                <h3 class="fw-bold mb-0" th:text="${item.academicEvaluation.score + ' / 10'}">9.0 / 10</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feedback -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-comment-dots me-2 text-primary"></i>Nhận xét từ Giảng viên</h6>
+                        <div class="p-4 bg-light rounded-4 border-start border-primary border-4 shadow-sm"
+                             style="white-space: pre-line; color: #334155; min-height: 120px;"
+                             th:text="${item.academicEvaluation.feedback}">
+                        </div>
+                    </div>
+
+                    <!-- Borrowed Equipments -->
+                    <div th:if="${not #lists.isEmpty(item.borrowingRecords)}" class="mb-2">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-tools me-2 text-primary"></i>Thiết bị đã mượn</h6>
+                        <div class="list-group list-group-flush border rounded-4 overflow-hidden">
+                            <div th:each="record : ${item.borrowingRecords}" class="list-group-item bg-transparent py-3">
+                                <div th:each="detail : ${record.details}" class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-medium text-dark"><i class="fas fa-check-circle text-success me-2"></i><span th:text="${detail.equipment.name}"></span></span>
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill fw-normal">Đã hoàn trả</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="card-footer bg-white border-0 p-4 pt-0 text-end">
+                    <button class="btn btn-outline-secondary rounded-pill px-4 me-2" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i> In báo cáo
+                    </button>
+                    <a th:href="@{/student/history}" class="btn btn-primary rounded-pill px-4">Xác nhận</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary { background-color: #4361ee !important; }
+    .text-primary { color: #4361ee !important; }
+    .list-group-item { border-color: #f1f5f9; }
+    @media print {
+        .sidebar, .header-top, .footer, .btn-link, .card-footer { display: none !important; }
+        .main-content { margin-left: 0 !important; }
+        .card { border: 1px solid #ddd !important; shadow: none !important; }
+    }
+</style>
+
+</body>
+</html>

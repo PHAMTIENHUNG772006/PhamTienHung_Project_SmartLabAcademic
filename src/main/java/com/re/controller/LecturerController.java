@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Controller
 @RequestMapping("/lecturer")
@@ -42,6 +43,15 @@ public class LecturerController {
     public String dashboard(HttpSession session, Model model) {
         User userDb = getUserFromDb(session);
         if (userDb == null) return "redirect:/auth/login";
+
+        List<MentoringSession> sessions = mentoringSessionService.findByLecturerAndStatus(userDb.getLecturer().getId(), SessionStatus.PENDING);
+
+        List<User> students =
+                mentoringSessionService.getStudentsByLecturer(userDb.getUserId());
+
+        model.addAttribute("studentCount", students.size());
+
+        model.addAttribute("pendingSessions", sessions);
         model.addAttribute("user", userDb);
         model.addAttribute("lecturerName", userDb.getFullName());
         return "lecturer/dashboard";
@@ -83,7 +93,7 @@ public class LecturerController {
     public String confirmApprove(@RequestParam Long sessionId,
                                  @RequestParam Long labId,
                                  @RequestParam String note,
-                                 @RequestParam(value = "equipmentId", required = false) Long equipmentId
+                                 @RequestParam(value = "equipmentId", required = false) List<Long> equipmentId
     ) {
         try {
             mentoringSessionService.approveSession(sessionId, labId, note,equipmentId);

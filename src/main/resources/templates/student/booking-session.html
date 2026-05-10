@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/main-layout :: main-layout(~{::#student-content}, 'Đặt lịch - SmartAcademic', 'booking-session')}">
+      th:replace="~{layout/main-layout :: main-layout(~{::#student-content}, 'Đặt lịch - SmartAcademic', 'booking')}">
 <body>
 
 <div id="student-content">
@@ -88,6 +88,40 @@
                             <div class="text-muted small">Học viện Công nghệ Bưu chính Viễn thông</div>
                         </label>
                     </div>
+
+                    <nav>
+                        <ul class="pagination justify-content-center">
+
+                            <!-- Previous -->
+                            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/student/booking(page=${currentPage - 1}) }">
+                                    Previous
+                                </a>
+                            </li>
+
+                            <!-- Page numbers -->
+                            <li class="page-item"
+                                th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                th:classappend="${i == totalItems} ? 'active'">
+
+                                <a class="page-link"
+                                   th:text="${i + 1}"
+                                   th:href="@{/student/booking(page=${i})}">
+                                </a>
+                            </li>
+
+                            <!-- Next -->
+                            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/student/booking(page=${currentPage + 1})}">
+                                    Next
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+
                 </div>
                 <div class="text-danger small mt-2" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
                 <div class="d-flex justify-content-end mt-4">
@@ -114,11 +148,15 @@
                             </div>
                         </label>
                     </div>
+
+                    <div th:if="${lecturers.isEmpty()}">
+                        <span th:text="'Không có giảng viên trong khoa này'"></span>
+                    </div>
                 </div>
                 <div class="text-danger small mt-2" th:if="${#fields.hasErrors('lecturerId')}" th:errors="*{lecturerId}"></div>
                 <div class="d-flex justify-content-between mt-4">
-                    <button type="submit" name="action" value="select-dept" class="btn btn-outline-secondary px-4 rounded-3">Quay lại</button>
-                    <button type="submit" name="action" value="select-lecturer" class="btn btn-primary px-5 rounded-3">Tiếp theo</button>
+                    <button type="submit" name="action" value="back-to-step1" class="btn btn-outline-secondary px-4 rounded-3">Quay lại</button>
+                    <button type="submit" name="action" value="select-lecturer" class="btn btn-primary px-5 rounded-3" th:disabled="${lecturers.isEmpty()}">Tiếp theo</button>
                 </div>
             </div>
 
@@ -139,7 +177,7 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-between mt-4">
-                    <button type="submit" name="action" value="select-dept" class="btn btn-outline-secondary px-4 rounded-3">Quay lại</button>
+                    <button type="submit" name="action" value="back-to-step2" class="btn btn-outline-secondary px-4 rounded-3">Quay lại</button>
                     <button type="submit" name="action" value="select-time" class="btn btn-primary px-5 rounded-3">Xem xác nhận</button>
                 </div>
             </div>

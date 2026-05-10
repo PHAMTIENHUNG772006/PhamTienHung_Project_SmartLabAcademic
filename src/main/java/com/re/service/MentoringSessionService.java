@@ -18,17 +18,23 @@ public interface MentoringSessionService {
 
     List<MentoringSession> getStudentHistory(Long studentId);
 
-    List<MentoringSession> getPendingSessionsForLecturer(Long lecturerId);
-
     void completeMentoringProcess(Long sessionId, AcademicEvaluation evaluationData, Long equipmentId);
 
     List<MentoringSession> findByLecturerAndStatus(Long lecturerId, SessionStatus status);
 
-    void approveSession(Long sessionId, Long labId, String note, Long equipmentId);
+    void approveSession(Long sessionId, Long labId, String note, List<Long> equipmentId);
 
     void rejectSession(Long sessionId);
 
     List<MentoringSession> getActiveSessionsForLecturer(Long lecturerId);
 
     List<MentoringSession> findAll();
+
+    void cancelSession(Long sessionId, Long userId);
+
+    List<MentoringSession> findByStudentIdAndStatus(Long studentId, SessionStatus status);
+
+    List<User> getStudentsByLecturer(Long lecturerId);
+
+    List<MentoringSession> findByStudentId(Long studentId);
 }

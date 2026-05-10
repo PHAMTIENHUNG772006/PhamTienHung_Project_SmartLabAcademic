@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -254,9 +255,13 @@ public class AdminController {
     // Duyệt đơn mượn thiết bị - Màn hình danh sách
     @GetMapping("/equipments/borrowing")
     public String list(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int itemPerpage, Model model) {
-        Pageable pageable = PageRequest.of(page, itemPerpage);
+
+        Sort sort = Sort.by(Sort.Order.asc("status"));
+
+        Pageable pageable = PageRequest.of(page, itemPerpage,sort);
 
         Page<BorrowingRecord> records = borrowingService.findAll(pageable);
+
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", records.getTotalPages());
         model.addAttribute("totalItems", records.getTotalElements());

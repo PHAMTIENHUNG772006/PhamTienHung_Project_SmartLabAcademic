@@ -35,4 +35,17 @@ public interface MentoringSessionRepository extends JpaRepository<MentoringSessi
             @Param("endTime") LocalDateTime endTime
     );
 
+    List<MentoringSession> findByStudent_UserIdAndStatus(Long userId, SessionStatus status);
+
+    @Query("""
+    SELECT DISTINCT ms.student
+    FROM MentoringSession ms
+    WHERE ms.lecturer.id = :lecturerId
+      AND ms.status <> com.re.model.enums.SessionStatus.CANCELLED
+    ORDER BY ms.student.fullName
+""")
+    List<User> findStudentsByLecturerId(@Param("lecturerId") Long lecturerId);
+
+
+    List<MentoringSession> findByStudent_UserId(Long userId);
 }

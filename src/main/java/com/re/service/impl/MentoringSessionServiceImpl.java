@@ -39,8 +39,7 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
     private BorrowingDetailRepository borrowingDetailRepository;
 
     @Autowired
-    private BorrowingRecordServiceImpl borrowingRecordService;
-
+    private MentoringSessionRepository mentoringSessionRepository;
 
     @Override
     public List<MentoringSession> findAll() {
@@ -84,11 +83,6 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
     }
 
 
-    @Override
-    public List<MentoringSession> getPendingSessionsForLecturer(Long lecturerId) {
-        return sessionRepository.findByLecturer_IdAndStatus(lecturerId, SessionStatus.PENDING);
-    }
-
 
     @Override
     public List<MentoringSession> findByLecturerAndStatus(Long lecturerId, SessionStatus status) {
@@ -97,39 +91,55 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
 
     @Override
     @Transactional
-    public void approveSession(Long sessionId, Long labId, String note, Long equipmentId) {
+    public void approveSession(Long sessionId, Long labId, String note, List<Long> equipmentIds) {
+        // 1. Tìm buổi mentoring
         MentoringSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch hẹn"));
 
+        // 2. Tìm phòng Lab
         Lab lab = labRepository.findById(labId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng Lab"));
 
         session.setLab(lab);
         session.setNote(note);
 
-        Equipment equipment = equipmentRepository.findById(equipmentId).orElse(null);
-
-        if (equipment != null) {
+        // 3. Xử lý cấp phát thiết bị nếu có danh sách ID
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
 
             session.setStatus(SessionStatus.AWAITING_EQUIPMENT);
-
             BorrowingRecord record = BorrowingRecord.builder()
                     .session(session)
                     .status(BorrowingStatus.PENDING)
                     .build();
             borrowingRecordRepository.save(record);
 
-            BorrowingDetail detail = BorrowingDetail.builder()
-                    .borrowingRecord(record)
-                    .equipment(equipment)
-                    .quantity(1)
-                    .build();
-            equipment.setAvailableQuantity(equipment.getAvailableQuantity() - 1);
-            equipmentRepository.save(equipment);
-            borrowingDetailRepository.save(detail);
+            // Lặp qua danh sách ID thiết bị được chọn
+            for (Long id : equipmentIds) {
+                Equipment equipment = equipmentRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị ID: " + id));
+
+                // Kiểm tra số lượng tồn kho trước khi trừ
+                if (equipment.getAvailableQuantity() < 1) {
+                    throw new RuntimeException("Thiết bị " + equipment.getName() + " đã hết hàng.");
+                }
+
+                // Tạo chi tiết mượn (BorrowingDetail)
+                BorrowingDetail detail = BorrowingDetail.builder()
+                        .borrowingRecord(record)
+                        .equipment(equipment)
+                        .quantity(1)
+                        .build();
+
+
+                equipment.setAvailableQuantity(equipment.getAvailableQuantity() - 1);
+                equipmentRepository.save(equipment);
+                borrowingDetailRepository.save(detail);
+            }
         } else {
             session.setStatus(SessionStatus.APPROVED);
         }
+
+
         sessionRepository.save(session);
     }
 
@@ -139,9 +149,23 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
         MentoringSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy ca tư vấn ID: " + sessionId));
 
+        List<BorrowingRecord> FindBorrowingRecord =
+                borrowingRecordRepository.findBySession_Id(sessionId);
+
+        if (FindBorrowingRecord != null && !FindBorrowingRecord.isEmpty()) {
+            boolean hasCancelledRecord = FindBorrowingRecord.stream()
+                    .anyMatch(record ->
+                            record.getStatus() == BorrowingStatus.CANCELLED);
+
+            if (hasCancelledRecord) {
+                throw new RuntimeException(
+                        "Không thể hoàn thành buổi tư vấn vì phiếu mượn thiết bị đã bị hủy.");
+            }
+        }
+
         // Chỉ hoàn tất khi đã được duyệt
         if (session.getStatus() != SessionStatus.APPROVED) {
-            throw new RuntimeException("Chỉ có thể hoàn thành ca tư vấn đã được duyệt!");
+            throw new RuntimeException("Chỉ có thể hoàn thành ca tư vấn đã được duyệt thiết bị!");
         }
 
         // 1. Cập nhật trạng thái Session
@@ -154,17 +178,34 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
         evaluationData.setStatus(true);
         evaluationRepository.save(evaluationData);
 
-        // 3. Logic trả thiết bị :
-        // Tìm phiếu mượn của Session này để hoàn trả số lượng
-        Optional<BorrowingRecord> recordOpt = borrowingRecordRepository.findBySession_Id(sessionId)
-                .stream()
-                .filter(r -> r.getStatus() == BorrowingStatus.BORROWED || r.getStatus() == BorrowingStatus.PENDING)
-                .findFirst();
+        session.setAcademicEvaluation(evaluationData);
 
-        if (recordOpt.isPresent()) {
-            BorrowingRecord record = recordOpt.get();
-            borrowingRecordService.returnEquipment(record.getId());
-            borrowingRecordRepository.save(record);
+        // 3. Logic trả thiết bị :
+
+        List<BorrowingRecord> records = borrowingRecordRepository.findBySession_Id(sessionId);
+
+        if (records != null && !records.isEmpty()) {
+            for (BorrowingRecord record : records) {
+                // Chỉ trả những phiếu chưa được trả (PENDING hoặc BORROWED)
+                if (record.getStatus() == BorrowingStatus.PENDING || record.getStatus() == BorrowingStatus.BORROWED) {
+
+                    // Lấy danh sách thiết bị trong phiếu này và xử lý hoàn kho
+                    List<BorrowingDetail> details = record.getDetails();
+                    if (details != null) {
+                        for (BorrowingDetail detail : details) {
+                            Equipment equipment = detail.getEquipment();
+
+                            // Cộng lại số lượng vào kho
+                            equipment.setAvailableQuantity(equipment.getAvailableQuantity() + detail.getQuantity());
+                            equipmentRepository.save(equipment);
+                        }
+                    }
+
+                    // Cập nhật trạng thái phiếu sau khi đã hoàn kho toàn bộ thiết bị trong List
+                    record.setStatus(BorrowingStatus.RETURNED);
+                    borrowingRecordRepository.save(record);
+                }
+            }
         }
     }
 
@@ -191,5 +232,43 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
                 lecturerId,
                 List.of(SessionStatus.APPROVED, SessionStatus.AWAITING_EQUIPMENT)
         );
+    }
+
+    @Transactional
+    public void cancelSession(Long sessionId, Long userId) {
+        MentoringSession session = mentoringSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy buổi tư vấn."));
+
+        // Kiểm tra quyền sở hữu
+        if (!session.getStudent().getUserId().equals(userId)) {
+            throw new RuntimeException("Bạn không có quyền hủy lịch này.");
+        }
+
+        // Chỉ cho phép hủy khi đang chờ duyệt
+        if (session.getStatus() != SessionStatus.PENDING) {
+            throw new RuntimeException("Chỉ có thể hủy lịch khi đang ở trạng thái Chờ duyệt.");
+        }
+
+        session.setStatus(SessionStatus.CANCELLED);
+        session.setNote("Sinh viên tự hủy yêu cầu.");
+        mentoringSessionRepository.save(session);
+    }
+
+    @Override
+    public List<MentoringSession> findByStudentIdAndStatus(Long studentId, SessionStatus status) {
+
+        return mentoringSessionRepository.findByStudent_UserIdAndStatus(studentId,status);
+    }
+
+
+    // Trong MentoringSessionServiceImpl
+    @Override
+    public List<User> getStudentsByLecturer(Long lecturerId) {
+        return mentoringSessionRepository.findStudentsByLecturerId(lecturerId);
+    }
+
+    @Override
+    public List<MentoringSession> findByStudentId(Long studentId) {
+        return mentoringSessionRepository.findByStudent_UserId(studentId);
     }
 }

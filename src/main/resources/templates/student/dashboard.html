@@ -14,7 +14,7 @@
             <div class="bg-white p-4 rounded-4 shadow-sm d-flex justify-content-between align-items-center">
                 <div>
                     <small class="text-muted d-block mb-1">Lịch hẹn sắp tới</small>
-                    <h2 class="fw-bold mb-0">0</h2>
+                    <h2 class="fw-bold mb-0" th:text="${countScheduleBecoming}">0</h2>
                 </div>
                 <div class="p-3 bg-info-subtle text-info rounded-3"><i class="fas fa-calendar-check"></i></div>
             </div>
@@ -42,7 +42,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
+
+                <tr th:each="mentoring : ${sessions}">
+                    <td th:text="${mentoring.lecturer.user.fullName}"></td>
+                    <td th:text="${#temporals.format(mentoring.startTime, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>  <span class="badge px-3 py-2 rounded-pill fw-semibold text-white"
+                                th:text="${mentoring.status}"
+                                th:classappend="
+                ${mentoring.status.name() == 'PENDING'} ? ' bg-warning text-dark' :
+                (${mentoring.status.name() == 'APPROVED'} ? ' bg-primary' :
+                (${mentoring.status.name() == 'AWAITING_EQUIPMENT'} ? ' bg-info text-dark' :
+                (${mentoring.status.name() == 'COMPLETED'} ? ' bg-success' :
+                (${mentoring.status.name() == 'CANCELLED'} ? ' bg-danger' :
+                (${mentoring.status.name() == 'REJECTED'} ? ' bg-secondary' :
+                ' bg-dark')))))">
+    </span></td>
+                </tr>
+
+                <tr th:if="${sessions.isEmpty()}">
                     <td colspan="3" class="text-center py-4 text-muted">Chưa có hoạt động nào gần đây</td>
                 </tr>
                 </tbody>
