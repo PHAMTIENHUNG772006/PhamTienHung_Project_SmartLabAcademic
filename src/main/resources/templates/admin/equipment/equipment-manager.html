@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/main-layout :: main-layout(~{::#admin-dashboard}, 'Quản trị - SmartAcademic', 'equipments')}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<style>
+    .fade-out-auto {
+        animation: fadeOut 0.3s ease-out 1s forwards;
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to {
+            opacity: 0;
+            transform: translateY(-20px);
+            display: none;
+            visibility: hidden;
+        }
+    }
+
+
+</style>
 <body>
 
 <div id="admin-dashboard">
@@ -20,7 +40,7 @@
 
     <div class="bg-white p-4 rounded-4 shadow-sm">
 
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4 fade-out-auto" role="alert">
             <div class="d-flex align-items-center">
                 <i class="fas fa-exclamation-circle me-2 fs-4"></i>
                 <span th:text="${error}">Nội dung lỗi</span>
@@ -28,7 +48,7 @@
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4 fade-out-auto" role="alert">
             <div class="d-flex align-items-center">
                 <i class="fas fa-check-circle me-2 fs-4"></i>
                 <span th:text="${success}">Xóa thành công</span>
@@ -73,7 +93,7 @@
                     </td>
                 </tr>
 
-                <tr th:if="${#lists.isEmpty(equipments)}">
+                <tr th:if="${#lists.isEmpty(equipments.content)}">
                     <td colspan="6" class="text-center py-5 text-muted">
                         <i class="fas fa-box-open d-block mb-2 fs-2"></i>
                         Chưa có thiết bị nào trong hệ thống.
@@ -82,36 +102,21 @@
                 </tbody>
             </table>
 
-            <nav>
+            <nav th:if="${totalPages > 0}">
                 <ul class="pagination justify-content-center">
-
-                    <!-- Previous -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/equipments(page=${currentPage - 1}) }">
-                            Previous
-                        </a>
+                        <a class="page-link" th:href="@{/admin/equipment(page=${currentPage - 1})}">Previous</a>
                     </li>
 
-                    <!-- Page numbers -->
                     <li class="page-item"
                         th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                        th:classappend="${i == totalItems} ? 'active'">
-
-                        <a class="page-link"
-                           th:text="${i + 1}"
-                           th:href="@{/admin/equipments(page=${i})}">
-                        </a>
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/equipment(page=${i})}">1</a>
                     </li>
 
-                    <!-- Next -->
                     <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/equipments(page=${currentPage + 1})}">
-                            Next
-                        </a>
+                        <a class="page-link" th:href="@{/admin/equipment(page=${currentPage + 1})}">Next</a>
                     </li>
-
                 </ul>
             </nav>
         </div>

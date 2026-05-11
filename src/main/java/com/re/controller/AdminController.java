@@ -27,31 +27,29 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final EquimentService equimentService;
+    private final LabService labService;
+    private final DepartmentService departmentService;
+    private final BorrowingRecordService borrowingService;
+    private final MentoringSessionService mentoringSessionService;
+    private final LecturerService lecturerService;
 
-    @Autowired
-    private EquimentService equimentService;
-
-
-    @Autowired
-    private LabService labService;
-
-    @Autowired
-    private DepartmentService departmentService;
-
-    @Autowired
-    private UserService userServices;
-
-    @Autowired
-    private BorrowingRecordService borrowingService;
-
-    @Autowired
-    private MentoringSessionService mentoringSessionService;
-
-    @Autowired
-    private LecturerService lecturerService;
-
+    public AdminController(UserService userService,
+                           EquimentService equimentService,
+                           LabService labService,
+                           DepartmentService departmentService,
+                           BorrowingRecordService borrowingService,
+                           MentoringSessionService mentoringSessionService,
+                           LecturerService lecturerService) {
+        this.userService = userService;
+        this.equimentService = equimentService;
+        this.labService = labService;
+        this.departmentService = departmentService;
+        this.borrowingService = borrowingService;
+        this.mentoringSessionService = mentoringSessionService;
+        this.lecturerService = lecturerService;
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -96,7 +94,8 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page, itemPerpage);
 
 
-        Page<Equipment> equipments = equimentService.findAll(pageable);
+        Page<Equipment> equipments = equimentService.findAllActive(pageable);
+
 
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", equipments.getTotalPages());
@@ -142,6 +141,7 @@ public class AdminController {
                 .name(request.getName())
                 .description(request.getDescription())
                 .availableQuantity(request.getAvailableQuantity())
+                .status(true)
                 .build();
 
         equimentService.save(equipment);
@@ -209,7 +209,7 @@ public class AdminController {
 
         Pageable pageable = PageRequest.of(page, itemPerpage);
 
-        Page<User> users = userServices.findAll(pageable);
+        Page<User> users = userService.findAll(pageable);
 
         model.addAttribute("users", users.getContent());
         model.addAttribute("currentPage", page);
@@ -231,9 +231,15 @@ public class AdminController {
 
 
     @PostMapping("/users/create")
-    public String handleCreateUser(@ModelAttribute("userDTO") UserRequestDTO dto,
+    public String handleCreateUser(@Valid @ModelAttribute("userDTO") UserRequestDTO dto,
+                                   BindingResult result,
                                    @RequestParam("action") String action,
                                    Model model) {
+
+        if (result.hasErrors()) {
+            model.addAttribute("departments", departmentService.findAll());
+            return "admin/user/user-create";
+        }
 
 
         if ("refresh".equals(action)) {

@@ -203,7 +203,7 @@
             <div class="mb-3">
                 <label class="form-label">Họ và tên sinh viên</label>
                 <input type="text" class="form-control" th:field="*{username}" placeholder="Nguyễn Văn A">
-                <div class="error-text" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                <small class="error-text" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
             </div>
 
             <!-- Email -->
@@ -211,7 +211,7 @@
                 <label class="form-label">Email học thuật</label>
                 <input type="text" class="form-control" th:field="*{email}" placeholder="username@gmail.com">
                 <div class="error-text" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-                <div class="error-text" th:if="${emailError}" th:text="${emailError}"></div>
+                <small class="error-text" th:if="${emailError}" th:text="${emailError}"></small>
             </div>
 
             <!-- Mật khẩu -->
@@ -219,12 +219,15 @@
                 <div class="col-custom mb-3">
                     <label class="form-label">Mật khẩu</label>
                     <input type="password" class="form-control" th:field="*{password}" placeholder="••••••••">
-                    <div class="error-text" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                    <small class="error-text"
+                           th:if="${#fields.hasErrors('password')}"
+                           th:text="${#fields.errors('password')[0]}">
+                    </small>
                 </div>
                 <div class="col-custom mb-3">
                     <label class="form-label">Xác nhận</label>
                     <input type="password" class="form-control" th:field="*{confirmPassword}" placeholder="••••••••">
-                    <div class="error-text" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                    <small class="error-text" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
                 </div>
             </div>
 

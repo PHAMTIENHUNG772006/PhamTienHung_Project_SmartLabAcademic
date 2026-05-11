@@ -23,14 +23,17 @@ import java.util.Optional;
 @Service
 public class BorrowingRecordServiceImpl implements BorrowingRecordService {
 
-    @Autowired
-    private BorrowingRecordRepository borrowingRecordRepository;
+    private final BorrowingRecordRepository borrowingRecordRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final MentoringSessionRepository sessionRepository;
 
-    @Autowired
-    private EquipmentRepository equipmentRepository;
-
-    @Autowired
-    private MentoringSessionRepository sessionRepository;
+    public BorrowingRecordServiceImpl(BorrowingRecordRepository borrowingRecordRepository,
+                          EquipmentRepository equipmentRepository,
+                          MentoringSessionRepository sessionRepository) {
+        this.borrowingRecordRepository = borrowingRecordRepository;
+        this.equipmentRepository = equipmentRepository;
+        this.sessionRepository = sessionRepository;
+    }
 
     @Override
     @Transactional

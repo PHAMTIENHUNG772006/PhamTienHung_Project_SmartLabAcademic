@@ -15,8 +15,11 @@ import java.util.Optional;
 @Service
 public class LabServiceImpl implements LabService {
 
-    @Autowired
-    private LabsRepository labRepository;
+    private final LabsRepository labRepository;
+
+    public LabServiceImpl(LabsRepository labRepository) {
+        this.labRepository = labRepository;
+    }
 
 
     @Override

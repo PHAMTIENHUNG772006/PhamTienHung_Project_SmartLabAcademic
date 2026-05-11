@@ -13,17 +13,21 @@ import java.util.List;
 @Service
 public class EquimentServiceImpl implements EquimentService {
 
+    private final EquipmentRepository equipmentRepository;
 
-    @Autowired
-    private EquipmentRepository equipmentRepository;
-
-    @Autowired
-    private BorrowingRecordServiceImpl borrowingRecordService;
+    public EquimentServiceImpl(EquipmentRepository equipmentRepository) {
+        this.equipmentRepository = equipmentRepository;
+    }
 
 
     @Override
     public List<Equipment> findAll() {
         return equipmentRepository.findAll();
+    }
+
+    @Override
+    public Page<Equipment> findAllActive(Pageable pageable) {
+        return equipmentRepository.findAllByStatusTrue(pageable);
     }
 
     @Override
@@ -55,7 +59,8 @@ public class EquimentServiceImpl implements EquimentService {
         }
 
         try {
-            equipmentRepository.deleteById(id);
+            equipment.setStatus(false);
+            equipmentRepository.save(equipment);
         } catch (Exception e) {
             throw new RuntimeException("Lỗi hệ thống: Không thể xóa thiết bị do ràng buộc dữ liệu lịch sử.");
         }

@@ -16,8 +16,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/register")
     public String showRegisterPage(Model model) {
@@ -31,6 +35,16 @@ public class AuthController {
                                RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
+            return "auth/register";
+        }
+
+
+        if (!request.isPasswordMatched()) {
+            result.rejectValue(
+                    "confirmPassword",
+                    "error.registerRequest",
+                    "Mật khẩu xác nhận không khớp"
+            );
             return "auth/register";
         }
 

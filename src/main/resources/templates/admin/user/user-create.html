@@ -99,10 +99,12 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Họ và tên</label>
                         <input type="text" th:field="*{fullName}" class="form-control" placeholder="Nhập họ tên...">
+                        <small th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></small>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Email tài khoản</label>
                         <input type="email" th:field="*{email}" class="form-control" placeholder="example@stu.ptit.edu.vn">
+                        <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></small>
                     </div>
                 </div>
 
@@ -118,6 +120,7 @@
                             Xác nhận vai trò
                         </button>
                     </div>
+                    <small class="text-muted" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></small>
                     <small class="text-muted">* Nhấn xác nhận để hiện thêm các trường thông tin đặc thù.</small>
                 </div>
             </div>
@@ -132,14 +135,17 @@
                             <option value="">-- Chọn khoa từ danh sách --</option>
                             <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"></option>
                         </select>
+                        <small th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}" class="text-danger"></small>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Học vị</label>
                         <input type="text" th:field="*{degree}" class="form-control" placeholder="Thạc sĩ, Tiến sĩ...">
+                        <small th:if="${#fields.hasErrors('degree')}" th:errors="*{degree}" class="text-danger"></small>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Chuyên ngành sâu</label>
                         <input type="text" th:field="*{specialization}" class="form-control" placeholder="VD: An toàn thông tin">
+                        <small th:if="${#fields.hasErrors('specialization')}" th:errors="*{specialization}" class="text-danger"></small>
                     </div>
                 </div>
             </div>

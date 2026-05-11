@@ -14,9 +14,12 @@ import java.util.Optional;
 
 @Service
 public class LecturerServiceImpl implements LecturerService {
+    private final LecturerRepository lecturerRepository;
 
-    @Autowired
-    private LecturerRepository lecturerRepository;
+
+    public LecturerServiceImpl(LecturerRepository lecturerRepository) {
+        this.lecturerRepository = lecturerRepository;
+    }
 
     @Override
     public Optional<Lecturer> findById(Long id) {

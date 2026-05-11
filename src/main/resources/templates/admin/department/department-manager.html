@@ -89,7 +89,6 @@
                     <th>Thông tin Khoa</th>
                     <th>Mô tả chi tiết</th>
                     <th class="text-center">Trạng thái</th>
-                    <th class="text-center">Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -117,20 +116,6 @@
                         <span th:if="${item.status}" class="status-badge status-active">Đang hoạt động</span>
                         <span th:unless="${item.status}" class="status-badge status-inactive">Ngừng hoạt động</span>
                     </td>
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <a th:href="@{/admin/department/edit/{id}(id=${item.id})}"
-                               class="btn-action btn-edit" title="Chỉnh sửa">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a th:href="@{/admin/department/delete/{id}(id=${item.id})}"
-                               class="btn-action btn-delete"
-                               onclick="return confirm('Xác nhận xóa khoa này? Việc này có thể ảnh hưởng đến giảng viên thuộc khoa.')"
-                               title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </div>
-                    </td>
                 </tr>
 
                 <tr th:if="${#lists.isEmpty(departments)}">
@@ -146,38 +131,23 @@
 
             </table>
 
-            <nav>
-                <ul class="pagination justify-content-center">
+            <<nav th:if="${totalPages > 0}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/departments(page=${currentPage - 1})}">Previous</a>
+                </li>
 
-                    <!-- Previous -->
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/departments(page=${currentPage - 1}) }">
-                            Previous
-                        </a>
-                    </li>
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:text="${i + 1}" th:href="@{/admin/departments(page=${i})}">1</a>
+                </li>
 
-                    <!-- Page numbers -->
-                    <li class="page-item"
-                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                        th:classappend="${i == totalItems} ? 'active'">
-
-                        <a class="page-link"
-                           th:text="${i + 1}"
-                           th:href="@{/admin/departments(page=${i})}">
-                        </a>
-                    </li>
-
-                    <!-- Next -->
-                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/departments(page=${currentPage + 1})}">
-                            Next
-                        </a>
-                    </li>
-
-                </ul>
-            </nav>
+                <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/departments(page=${currentPage + 1})}">Next</a>
+                </li>
+            </ul>
+        </nav>
         </div>
     </div>
 </div>

@@ -19,7 +19,6 @@ public class RoleInterceptor implements HandlerInterceptor {
             return false;
         }
 
-
         String role = user.getRole().name();
 
 
@@ -27,12 +26,12 @@ public class RoleInterceptor implements HandlerInterceptor {
         boolean isAccessingAdmin = uri.startsWith("/admin");
         boolean isAccessingStudent = uri.startsWith("/student");
 
-        // Nếu truy cập sai vùng quyền
+
         if ((isAccessingLecturer && !role.equals("LECTURER")) ||
                 (isAccessingAdmin && !role.equals("ADMIN")) ||
                 (isAccessingStudent && !role.equals("STUDENT"))) {
 
-            // Bật về trang tương ứng với Role của họ
+
             response.sendRedirect(getRedirectUrlByRole(role));
             return false;
         }
@@ -40,7 +39,7 @@ public class RoleInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    // Hàm phụ trợ để xác định URL trang chủ theo Role
+
     private String getRedirectUrlByRole(String role) {
         switch (role) {
             case "ADMIN":

@@ -1,6 +1,8 @@
 package com.re.repository;
 
 import com.re.model.entity.Equipment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,4 +14,6 @@ public interface EquipmentRepository extends JpaRepository<Equipment,Long> {
             "WHERE bd.equipment.id = :equipmentId " +
             "AND bd.borrowingRecord.status NOT IN (com.re.model.enums.BorrowingStatus.RETURNED, com.re.model.enums.BorrowingStatus.CANCELLED)")
     long countActiveBorrowing(@Param("equipmentId") Long equipmentId);
+
+    Page<Equipment> findAllByStatusTrue(Pageable pageable);
 }

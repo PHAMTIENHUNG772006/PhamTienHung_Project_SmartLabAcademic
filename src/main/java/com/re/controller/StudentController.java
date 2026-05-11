@@ -3,10 +3,13 @@ package com.re.controller;
 import com.re.model.dto.BookingProcessDTO;
 import com.re.model.entity.*;
 import com.re.model.enums.SessionStatus;
+import com.re.repository.MentoringSessionRepository;
 import com.re.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,25 +23,33 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/student")
 @SessionAttributes("bookingData")
 public class StudentController {
 
-    @Autowired
-    private UserService userService;
+        private final UserService userService;
+        private final DepartmentService departmentService;
+        private final LecturerService lecturerService;
+        private final MentoringSessionService mentoringSessionService;
+        private final MentoringSessionRepository sessionRepository;
+        private final Validator validator;
 
-    @Autowired
-    private DepartmentService departmentService;
-
-
-    @Autowired
-    private LecturerService lecturerService;
-
-
-    @Autowired
-    private MentoringSessionService mentoringSessionService;
+        public StudentController(UserService userService,
+                                 DepartmentService departmentService,
+                                 LecturerService lecturerService,
+                                 MentoringSessionService mentoringSessionService,
+                                 MentoringSessionRepository sessionRepository,
+                                 Validator validator) {
+            this.userService = userService;
+            this.departmentService = departmentService;
+            this.lecturerService = lecturerService;
+            this.mentoringSessionService = mentoringSessionService;
+            this.sessionRepository = sessionRepository;
+            this.validator = validator;
+        }
 
 
     private User getUserFromDb(HttpSession session) {
@@ -97,7 +108,6 @@ public class StudentController {
         model.addAttribute("totalPages", departments.getTotalPages());
         model.addAttribute("totalItems", departments.getTotalElements());
 
-        // Nếu truy cập trực tiếp /student/booking thì luôn bắt đầu từ step 1
         model.addAttribute("step", 1);
 
         return "student/booking-session";
@@ -112,7 +122,7 @@ public class StudentController {
                                  Model model,
                                  HttpSession session) {
 
-        // ===== 1. Merge dữ liệu từ form vào session =====
+
         BookingProcessDTO sessionDto =
                 (BookingProcessDTO) session.getAttribute("bookingData");
 
@@ -138,10 +148,11 @@ public class StudentController {
 
         dto = sessionDto;
 
+        // Lưu lại vào session
         session.setAttribute("bookingData", dto);
         model.addAttribute("bookingData", dto);
 
-        // ===== 2. Load departments + pagination cho step 1 =====
+        // ===== 2. Load departments cho step 1 =====
         Pageable pageable = PageRequest.of(0, 9);
         Page<Department> departments = departmentService.findAll(pageable);
 
@@ -150,10 +161,49 @@ public class StudentController {
         model.addAttribute("totalPages", departments.getTotalPages());
         model.addAttribute("totalItems", departments.getTotalElements());
 
-        // ===== 3. Validate step 3 =====
-        if ("select-time".equals(action) && result.hasErrors()) {
-            model.addAttribute("step", 3);
-            return "student/booking-session";
+
+        // ===== riêng validate của step 3 =====
+        if ("select-time".equals(action)) {
+
+            // 3.1 Bean Validation
+            Set<ConstraintViolation<BookingProcessDTO>> violations =
+                    validator.validate(dto);
+
+            for (ConstraintViolation<BookingProcessDTO> violation : violations) {
+                String field = violation.getPropertyPath().toString();
+
+                if (!field.equals("bookingDate") && !field.equals("reason")) {
+                    continue;
+                }
+
+                result.rejectValue(field, "", violation.getMessage());
+            }
+
+            // 3.2 Kiểm tra trùng lịch
+            if (!result.hasFieldErrors("bookingDate")
+                    && dto.getLecturerId() != null
+                    && dto.getBookingDate() != null) {
+
+                List<MentoringSession> conflictingSessions =
+                        sessionRepository.findConflictingSessions(
+                                dto.getLecturerId(),
+                                dto.getBookingDate(),
+                                dto.getBookingDate().plusHours(1)
+                        );
+
+                if (!conflictingSessions.isEmpty()) {
+                    result.rejectValue(
+                            "bookingDate",
+                            "",
+                            "Giảng viên đã có lịch tư vấn trong khoảng thời gian này. Vui lòng chọn thời gian khác."
+                    );
+                }
+            }
+
+            if (result.hasErrors()) {
+                model.addAttribute("step", 3);
+                return "student/booking-session";
+            }
         }
 
         // ===== 4. Xử lý wizard =====
@@ -185,18 +235,11 @@ public class StudentController {
                 User user = (User) session.getAttribute("user");
 
                 try {
-                    if (dto != null && dto.getBookingDate() != null) {
-                        mentoringSessionService.createBookingRequest(dto, user);
+                    mentoringSessionService.createBookingRequest(dto, user);
 
-                        // Xóa dữ liệu wizard sau khi lưu thành công
-                        session.removeAttribute("bookingData");
+                    session.removeAttribute("bookingData");
 
-                        return "redirect:/student/dashboard?bookingSuccess";
-                    } else {
-                        model.addAttribute("error", "Dữ liệu thời gian không hợp lệ.");
-                        model.addAttribute("step", 3);
-                        return "student/booking-session";
-                    }
+                    return "redirect:/student/dashboard?bookingSuccess";
                 } catch (RuntimeException e) {
                     model.addAttribute("error", e.getMessage());
                     model.addAttribute("step", 3);
@@ -220,7 +263,6 @@ public class StudentController {
                 model.addAttribute("step", 3);
                 break;
 
-            // Action không hợp lệ
             default:
                 model.addAttribute("step", 1);
                 break;

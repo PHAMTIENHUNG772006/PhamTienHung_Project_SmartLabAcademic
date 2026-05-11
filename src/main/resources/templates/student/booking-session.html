@@ -198,6 +198,10 @@
                         <div class="col-md-6 mb-3">
                             <div class="small text-muted">THỜI GIAN ĐỀ XUẤT</div>
                             <div class="fw-bold" th:text="${bookingData.bookingDate != null ? #temporals.format(bookingData.bookingDate, 'HH:mm dd/MM/yyyy') : 'Chưa chọn'}"></div>
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('bookingDate')}"
+                                 th:errors="*{bookingDate}">
+                            </div>
                         </div>
                         <div class="col-md-12">
                             <div class="small text-muted">NỘI DUNG</div>

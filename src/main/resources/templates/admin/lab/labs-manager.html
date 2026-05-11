@@ -119,7 +119,7 @@
                     </td>
                 </tr>
 
-                <tr th:if="${#lists.isEmpty(labs)}">
+                <tr th:if="${#lists.isEmpty(labs.content)}">
                     <td colspan="8" class="text-center py-5">
                         <div class="text-muted">
                             <i class="fas fa-folder-open fs-1 d-block mb-3"></i>
@@ -130,36 +130,21 @@
                 </tbody>
             </table>
 
-            <nav>
+            <nav th:if="${totalPages > 0}">
                 <ul class="pagination justify-content-center">
-
-                    <!-- Previous -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/labs(page=${currentPage - 1}) }">
-                            Previous
-                        </a>
+                        <a class="page-link" th:href="@{/admin/labs(page=${currentPage - 1})}">Previous</a>
                     </li>
 
-                    <!-- Page numbers -->
                     <li class="page-item"
                         th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                        th:classappend="${i == totalItems} ? 'active'">
-
-                        <a class="page-link"
-                           th:text="${i + 1}"
-                           th:href="@{/admin/labs(page=${i})}">
-                        </a>
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/labs(page=${i})}">1</a>
                     </li>
 
-                    <!-- Next -->
                     <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/labs(page=${currentPage + 1})}">
-                            Next
-                        </a>
+                        <a class="page-link" th:href="@{/admin/labs(page=${currentPage + 1})}">Next</a>
                     </li>
-
                 </ul>
             </nav>
         </div>

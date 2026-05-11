@@ -17,30 +17,32 @@ import java.util.Optional;
 @Service
 public class MentoringSessionServiceImpl implements MentoringSessionService {
 
-    @Autowired
-    private MentoringSessionRepository sessionRepository;
+    private final MentoringSessionRepository sessionRepository;
+    private final LecturerRepository lecturerRepository;
+    private final LabsRepository labRepository;
+    private final AcademicEvaluationRepository evaluationRepository;
+    private final BorrowingRecordRepository borrowingRecordRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final BorrowingDetailRepository borrowingDetailRepository;
+    private final MentoringSessionRepository mentoringSessionRepository;
 
-    @Autowired
-    private LecturerRepository lecturerRepository;
-
-    @Autowired
-    private LabsRepository labRepository;
-
-    @Autowired
-    private AcademicEvaluationRepository evaluationRepository;
-
-    @Autowired
-    private BorrowingRecordRepository borrowingRecordRepository;
-
-    @Autowired
-    private EquipmentRepository equipmentRepository;
-
-    @Autowired
-    private BorrowingDetailRepository borrowingDetailRepository;
-
-    @Autowired
-    private MentoringSessionRepository mentoringSessionRepository;
-
+    public MentoringSessionServiceImpl(MentoringSessionRepository sessionRepository,
+                          LecturerRepository lecturerRepository,
+                          LabsRepository labRepository,
+                          AcademicEvaluationRepository evaluationRepository,
+                          BorrowingRecordRepository borrowingRecordRepository,
+                          EquipmentRepository equipmentRepository,
+                          BorrowingDetailRepository borrowingDetailRepository,
+                          MentoringSessionRepository mentoringSessionRepository) {
+        this.sessionRepository = sessionRepository;
+        this.lecturerRepository = lecturerRepository;
+        this.labRepository = labRepository;
+        this.evaluationRepository = evaluationRepository;
+        this.borrowingRecordRepository = borrowingRecordRepository;
+        this.equipmentRepository = equipmentRepository;
+        this.borrowingDetailRepository = borrowingDetailRepository;
+        this.mentoringSessionRepository = mentoringSessionRepository;
+    }
     @Override
     public List<MentoringSession> findAll() {
         return sessionRepository.findAll();
@@ -88,6 +90,8 @@ public class MentoringSessionServiceImpl implements MentoringSessionService {
     public List<MentoringSession> findByLecturerAndStatus(Long lecturerId, SessionStatus status) {
         return sessionRepository.findByLecturer_IdAndStatus(lecturerId, status);
     }
+
+
 
     @Override
     @Transactional

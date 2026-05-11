@@ -19,16 +19,23 @@ import java.util.List;
 @RequestMapping("/lecturer")
 public class LecturerController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private EquimentService equimentService;
-    @Autowired
-    private LabService labService;
-    @Autowired
-    private LecturerService lecturerService;
-    @Autowired
-    private MentoringSessionService mentoringSessionService;
+    private final UserService userService;
+    private final EquimentService equimentService;
+    private final LabService labService;
+    private final LecturerService lecturerService;
+    private final MentoringSessionService mentoringSessionService;
+
+    public LecturerController(UserService userService,
+                          EquimentService equimentService,
+                          LabService labService,
+                          LecturerService lecturerService,
+                          MentoringSessionService mentoringSessionService) {
+        this.userService = userService;
+        this.equimentService = equimentService;
+        this.labService = labService;
+        this.lecturerService = lecturerService;
+        this.mentoringSessionService = mentoringSessionService;
+    }
 
     // Hàm tiện ích lấy User từ Session
     private User getUserFromDb(HttpSession session) {

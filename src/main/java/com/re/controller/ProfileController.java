@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 public class ProfileController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public ProfileController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/profile")
     public String profile(HttpSession session, Model model) {

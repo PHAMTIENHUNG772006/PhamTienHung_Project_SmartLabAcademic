@@ -13,4 +13,5 @@ public interface EquimentService {
     Equipment save(Equipment equipment);
     Equipment findById(Long id);
     void delete(Long id);
+    Page<Equipment> findAllActive(Pageable pageable);
 }

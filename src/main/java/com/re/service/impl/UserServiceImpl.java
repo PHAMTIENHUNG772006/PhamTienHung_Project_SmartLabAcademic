@@ -24,17 +24,18 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
 
-
-    private DepartmentService departmentService;
+    private final DepartmentService departmentService;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, DepartmentService departmentService) {
+    public UserServiceImpl(DepartmentService departmentService,
+                       UserRepository userRepository,
+                       BCryptPasswordEncoder passwordEncoder) {
+        this.departmentService = departmentService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.departmentService = departmentService;
     }
+
 
     @Override
     public User register(UserDTO request) {

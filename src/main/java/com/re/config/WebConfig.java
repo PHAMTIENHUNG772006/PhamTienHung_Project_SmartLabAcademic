@@ -14,7 +14,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // Chỉ áp dụng bộ lọc cho các đường dẫn nhạy cảm
         registry.addInterceptor(roleInterceptor)
                 .addPathPatterns("/lecturer/**", "/admin/**", "/student/**")
                 .excludePathPatterns("/auth/**", "/css/**", "/js/**");
