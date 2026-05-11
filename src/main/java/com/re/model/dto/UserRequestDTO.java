@@ -1,6 +1,7 @@
 package com.re.model.dto;
 
 import com.re.model.enums.Role;
+import com.re.validation.OnSave;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -25,7 +26,7 @@ public class UserRequestDTO {
     private Role role;
 
 
-    @NotNull(message = "Vui lòng chọn khoa")
+    @NotNull(message = "Vui lòng chọn khoa", groups = OnSave.class)
     private Long departmentId;
 
     private String specialization;
@@ -33,5 +34,5 @@ public class UserRequestDTO {
     private String degree;
 
     @Min(value = 0, message = "Số năm kinh nghiệm không được âm")
-    private Integer experienceYears = 0;
+    private Integer experienceYears;
 }

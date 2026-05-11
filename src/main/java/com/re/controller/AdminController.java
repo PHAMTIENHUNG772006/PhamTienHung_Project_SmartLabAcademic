@@ -8,6 +8,7 @@ import com.re.model.enums.BorrowingStatus;
 import com.re.model.enums.Role;
 import com.re.repository.LecturerTopConsulting;
 import com.re.service.*;
+import com.re.validation.OnSave;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -246,38 +248,34 @@ public class AdminController {
                                    @RequestParam("action") String action,
                                    Model model) {
 
-        if (result.hasErrors()) {
-            // In lỗi ra Console để bạn nhìn thấy tận mắt
-            result.getFieldErrors().forEach(f ->
-                    System.out.println("Lỗi tại trường: " + f.getField() + " | Giá trị lỗi: " + f.getRejectedValue() + " | Thông báo: " + f.getDefaultMessage())
-            );
 
-            model.addAttribute("departments", departmentService.findAll());
-            model.addAttribute("roles", Role.values());
-            return "admin/user/user-create";
-        }
-
-        if (userService.findByEmail(dto.getEmail()) != null) {
-            result.rejectValue("email", "error.userDTO", "Email này đã tồn tại trong hệ thống!");
-        }
-
-        // 1. Phải ưu tiên xử lý "refresh" TRƯỚC khi check lỗi validation
         if ("refresh".equals(action)) {
             model.addAttribute("departments", departmentService.findAll());
             model.addAttribute("roles", Role.values());
             return "admin/user/user-create";
         }
 
-        // 2. Sau đó mới check lỗi khi người dùng nhấn "save"
-        if (result.hasErrors()) {
-            model.addAttribute("departments", departmentService.findAll());
-            model.addAttribute("roles", Role.values());
-            return "admin/user/user-create";
-        }
-
-        System.out.println(action);
-
         if ("save".equals(action)) {
+
+            if (Role.LECTURER.equals(dto.getRole()) && dto.getDepartmentId() == null) {
+                result.rejectValue("departmentId", "error.userDTO", "Giảng viên bắt buộc phải thuộc về một khoa!");
+            }
+
+            if (userService.findByEmail(dto.getEmail()) != null) {
+                result.rejectValue("email", "error.userDTO", "Email đã tồn tại trong hệ thống!");
+            }
+
+            // --- KIỂM TRA TỔNG HỢP LỖI ---
+            // Lúc này result sẽ bao gồm:
+            // - Lỗi từ @Valid (fullName, email trống, password ngắn...)
+            // - Lỗi departmentId (nếu là Lecturer mà chưa chọn)
+            // - Lỗi email trùng
+            if (result.hasErrors()) {
+                model.addAttribute("departments", departmentService.findAll());
+                model.addAttribute("roles", Role.values());
+                return "admin/user/user-create";
+            }
+
 
             userService.adminCreateUser(dto);
             return "redirect:/admin/users?success";
