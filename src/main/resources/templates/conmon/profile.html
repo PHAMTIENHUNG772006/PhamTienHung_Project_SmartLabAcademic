@@ -154,6 +154,7 @@
 
                             <input type="date"
                                    th:field="*{dateOfBirth}"
+                                   th:value="${#temporals.format(profile.dateOfBirth, 'yyyy-MM-dd')}"
                                    class="form-control bg-light border-0 py-3 rounded-3 shadow-sm"
                                    th:classappend="${#fields.hasErrors('dateOfBirth')} ? ' is-invalid' : ''">
 

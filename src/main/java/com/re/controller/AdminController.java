@@ -168,7 +168,17 @@ public class AdminController {
     @GetMapping("/user/lock/{id}")
     public String lock(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
+        User userDb = userService.findById(id);
+
+        if (userDb.getUserId().equals(id)){
+            redirectAttributes.addFlashAttribute("error","Bạn không thể khóa tài khoản chính mình");
+
+            return "redirect:/admin/users";
+        }
+
+
         userService.lock(id);
+        redirectAttributes.addFlashAttribute("success","Khóa tài khoản thành công");
 
         return "redirect:/admin/users";
     }
@@ -237,19 +247,38 @@ public class AdminController {
                                    Model model) {
 
         if (result.hasErrors()) {
+            // In lỗi ra Console để bạn nhìn thấy tận mắt
+            result.getFieldErrors().forEach(f ->
+                    System.out.println("Lỗi tại trường: " + f.getField() + " | Giá trị lỗi: " + f.getRejectedValue() + " | Thông báo: " + f.getDefaultMessage())
+            );
+
             model.addAttribute("departments", departmentService.findAll());
+            model.addAttribute("roles", Role.values());
             return "admin/user/user-create";
         }
 
+        if (userService.findByEmail(dto.getEmail()) != null) {
+            result.rejectValue("email", "error.userDTO", "Email này đã tồn tại trong hệ thống!");
+        }
 
+        // 1. Phải ưu tiên xử lý "refresh" TRƯỚC khi check lỗi validation
         if ("refresh".equals(action)) {
             model.addAttribute("departments", departmentService.findAll());
-            model.addAttribute("userDTO", dto);
+            model.addAttribute("roles", Role.values());
             return "admin/user/user-create";
         }
 
+        // 2. Sau đó mới check lỗi khi người dùng nhấn "save"
+        if (result.hasErrors()) {
+            model.addAttribute("departments", departmentService.findAll());
+            model.addAttribute("roles", Role.values());
+            return "admin/user/user-create";
+        }
+
+        System.out.println(action);
 
         if ("save".equals(action)) {
+
             userService.adminCreateUser(dto);
             return "redirect:/admin/users?success";
         }

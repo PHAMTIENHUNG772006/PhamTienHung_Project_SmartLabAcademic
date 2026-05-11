@@ -17,6 +17,28 @@
             border-bottom: 2px solid #edf2f7;
         }
 
+        /* Định nghĩa hiệu ứng biến mất */
+        @keyframes fadeOutAndHide {
+            0% { opacity: 1; transform: translate(-50%, 0); }
+            70% { opacity: 1; transform: translate(-50%, 0); } /* Giữ nguyên trong 0.7s đầu */
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+                visibility: hidden;
+            }
+        }
+
+        .auto-hide-alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            min-width: 300px;
+            /* Chạy animation trong 1.5s (1s hiện, 0.5s mờ dần) */
+            animation: fadeOutAndHide 1s forwards;
+        }
+
         .custom-table tbody td {
             padding: 16px 15px;
             border-bottom: 1px solid #f2f2f2;
@@ -88,6 +110,18 @@
         <a th:href="@{/admin/users/create}" class="btn btn-primary rounded-3 px-4 shadow-sm" style="background-color: #4361ee; border: none;">
             <i class="fas fa-user-plus me-2"></i>Thêm người dùng
         </a>
+    </div>
+
+    <!-- Thông báo Success -->
+    <div th:if="${success}" class="auto-hide-alert alert alert-success shadow-sm border-0">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+    </div>
+
+    <!-- Thông báo Error -->
+    <div th:if="${error}" class="auto-hide-alert alert alert-danger shadow-sm border-0">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
     </div>
 
     <div class="bg-white p-4 rounded-4 shadow-sm border-0">

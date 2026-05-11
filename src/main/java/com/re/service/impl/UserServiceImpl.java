@@ -99,21 +99,21 @@ public class UserServiceImpl implements UserService {
                 .status(true)
                 .build();
 
-
         if (dto.getRole() == Role.LECTURER) {
-
-            Department dept = departmentService.findById(dto.getDepartmentId()).orElse(null);
-
+            Department dept = null;
+            if (dto.getDepartmentId() != null) {
+                dept = departmentService.findById(dto.getDepartmentId()).orElse(null);
+            }
             Lecturer lecturer = Lecturer.builder()
                     .user(user)
                     .department(dept)
                     .degree(dto.getDegree())
                     .specialization(dto.getSpecialization())
-                    .experienceYears(dto.getExperienceYears())
                     .build();
 
             user.setLecturer(lecturer);
         }
+
         userRepository.save(user);
     }
 
